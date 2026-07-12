@@ -8,6 +8,7 @@ import { useToast } from '@/hooks/use-toast';
 // Backend base URL — set VITE_API_URL in production (e.g. your Railway backend URL).
 // Defaults to localhost:8080 so `npm run dev` works out of the box with no config.
 const API_BASE_URL = import.meta.env.VITE_API_URL ?? 'http://localhost:8080';
+console.log("API BASE URL =", API_BASE_URL);
 
 // ---------------------------------------------------------------------------
 // Types
