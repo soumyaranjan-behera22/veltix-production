@@ -25,27 +25,38 @@
       },
     }),
   );
-  const allowedOrigins =
-    process.env.CORS_ORIGIN?.split(",").map((o) => o.trim()) ?? [];
-    console.log("CORS_ORIGIN ENV =", process.env.CORS_ORIGIN);
-console.log("Allowed Origins =", allowedOrigins);
+  // Re-read on every request — no startup race condition on Render
+app.options("*", cors({                          // ← ADD THIS LINE (handles preflight)
+  origin(origin, callback) {
+    const allowedOrigins = (process.env.CORS_ORIGIN ?? "")
+      .split(",")
+      .map((o) => o.trim())
+      .filter(Boolean);
 
-  app.use(
-    cors({
-      origin(origin, callback) {
-        console.log("Incoming Origin =", origin);
-        // Allow server-to-server requests
-        if (!origin) return callback(null, true);
+    if (!origin || allowedOrigins.includes(origin)) {
+      return callback(null, true);
+    }
+    return callback(null, false);                // ← WAS: callback(new Error(...))
+  },
+  credentials: true,
+}));
 
-        if (allowedOrigins.includes(origin)) {
-          return callback(null, true);
-        }
+app.use(
+  cors({
+    origin(origin, callback) {
+      const allowedOrigins = (process.env.CORS_ORIGIN ?? "")
+        .split(",")
+        .map((o) => o.trim())
+        .filter(Boolean);
 
-        return callback(new Error("Not allowed by CORS"));
-      },
-      credentials: true,
-    })
-  );
+      if (!origin || allowedOrigins.includes(origin)) {
+        return callback(null, true);
+      }
+      return callback(null, false);              // ← WAS: callback(new Error(...))
+    },
+    credentials: true,
+  })
+);
   app.use(express.json());
   app.use(express.urlencoded({ extended: true }));
 
