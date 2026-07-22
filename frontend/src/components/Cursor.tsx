@@ -8,6 +8,7 @@ import { motion, useMotionValue, useSpring } from 'framer-motion';
  */
 export default function Cursor() {
   const [isHovering, setIsHovering] = useState(false);
+  const [isTouchDevice, setIsTouchDevice] = useState(false);
   const [hoverText, setHoverText] = useState('');
 
   const rawX = useMotionValue(0);
@@ -18,6 +19,14 @@ export default function Cursor() {
   const ringY = useSpring(rawY, springCfg);
 
   useEffect(() => {
+    const touch =
+    window.matchMedia("(pointer: coarse)").matches ||
+    "ontouchstart" in window ||
+    navigator.maxTouchPoints > 0;
+
+  setIsTouchDevice(touch);
+
+  if (touch) return;
     const onMove = (e: MouseEvent) => {
       rawX.set(e.clientX);
       rawY.set(e.clientY);
@@ -59,7 +68,7 @@ export default function Cursor() {
       window.removeEventListener('mouseover', onOver);
     };
   }, [rawX, rawY]);
-
+  if (isTouchDevice) return null;
   return (
     <>
       {/* Inner dot — follows cursor with near-zero lag */}

@@ -13,7 +13,27 @@ export default function Navbar() {
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
+const handleSmoothScroll = (
+  e: React.MouseEvent<HTMLAnchorElement>,
+  target: string
+) => {
+  e.preventDefault();
 
+  const element = document.querySelector(target);
+
+  if (!element) return;
+
+  const lenis = (window as any).lenis;
+
+  if (lenis) {
+    lenis.scrollTo(element, {
+      offset: -80,
+      duration: 1.2,
+    });
+  }
+
+  setMobileMenuOpen(false);
+};
   const navLinks = [
     { name: 'Services', href: '#services' },
     { name: 'Work', href: '#work' },
@@ -58,6 +78,7 @@ export default function Navbar() {
               <motion.a
                 key={link.name}
                 href={link.href}
+                 onClick={(e) => handleSmoothScroll(e, link.href)}
                 initial={{ opacity: 0, y: -10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.1 * i, duration: 0.5 }}
@@ -71,6 +92,7 @@ export default function Navbar() {
           <div className="hidden md:block">
             <motion.a
               href="#contact"
+              onClick={(e) => handleSmoothScroll(e, "#contact")}
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ delay: 0.6, duration: 0.5 }}
@@ -114,6 +136,7 @@ className="md:hidden relative flex items-center justify-center w-10 h-10 rounded
         <motion.a
           key={link.name}
           href={link.href}
+          onClick={(e) => handleSmoothScroll(e, link.href)}
           initial={{ opacity: 0, x: -40 }}
           animate={{ opacity: 1, x: 0 }}
           exit={{ opacity: 0, x: -40 }}
@@ -141,6 +164,7 @@ className="md:hidden relative flex items-center justify-center w-10 h-10 rounded
 
     <motion.a
       href="#contact"
+      onClick={(e) => handleSmoothScroll(e, "#contact")}
       onClick={() => setMobileMenuOpen(false)}
       whileTap={{ scale: 0.96 }}
       className="flex justify-center items-center w-full rounded-full py-4 bg-[#4F8CFF] text-white font-semibold text-lg shadow-[0_0_40px_rgba(79,140,255,.35)]"

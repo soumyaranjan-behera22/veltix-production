@@ -1,10 +1,10 @@
 import { useEffect } from 'react';
+import Lenis from "lenis";
 import { Route, Switch, Router as WouterRouter } from 'wouter';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Toaster } from '@/components/ui/toaster';
 import { TooltipProvider } from '@/components/ui/tooltip';
 import NotFound from '@/pages/not-found';
-import Lenis from 'lenis';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
@@ -62,11 +62,15 @@ function App() {
     document.documentElement.classList.add('dark');
 
     // Lenis smooth scroll
-    const lenis = new Lenis({
-      lerp: 0.08,
-      duration: 1.4,
-      smoothWheel: true,
-    });
+   const lenis = new Lenis({
+  duration: 1.2,
+  lerp: 0.08,
+  smoothWheel: true,
+  wheelMultiplier: 1,
+  touchMultiplier: 1.5,
+});
+// Make Lenis globally available
+(window as any).lenis = lenis;
 
     gsap.registerPlugin(ScrollTrigger);
 
@@ -77,10 +81,13 @@ function App() {
     gsap.ticker.lagSmoothing(0);
 
     return () => {
-      gsap.ticker.remove(tickerCallback);
-      lenis.off('scroll', ScrollTrigger.update);
-      lenis.destroy();
-    };
+  gsap.ticker.remove(tickerCallback);
+  lenis.off("scroll", ScrollTrigger.update);
+
+  delete (window as any).lenis;
+
+  lenis.destroy();
+};
   }, []);
 
   return (
