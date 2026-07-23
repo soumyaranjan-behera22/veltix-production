@@ -144,7 +144,7 @@ className="md:hidden relative flex items-center justify-center w-10 h-10 rounded
             delay: i * 0.07,
             duration: 0.45,
           }}
-          onClick={() => setMobileMenuOpen(false)}
+         
           className="group flex items-center justify-between border-b border-white/10 pb-5"
         >
           <span className="text-[34px] font-bold tracking-tight text-white transition-all duration-300 group-hover:text-[#4F8CFF]">
@@ -165,7 +165,6 @@ className="md:hidden relative flex items-center justify-center w-10 h-10 rounded
     <motion.a
       href="#contact"
       onClick={(e) => handleSmoothScroll(e, "#contact")}
-      onClick={() => setMobileMenuOpen(false)}
       whileTap={{ scale: 0.96 }}
       className="flex justify-center items-center w-full rounded-full py-4 bg-[#4F8CFF] text-white font-semibold text-lg shadow-[0_0_40px_rgba(79,140,255,.35)]"
     >

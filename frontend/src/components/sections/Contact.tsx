@@ -82,7 +82,8 @@ function FloatingInput({
       <input
         type={type} id={id} value={value}
         onChange={e => onChange(e.target.value)}
-        className={`w-full bg-[#050505] border rounded-lg px-4 pt-6 pb-2 text-white font-sans outline-none focus:ring-1 transition-all peer ${
+        className={`w-full bg-white/[0.03]
+backdrop-blur-xl border rounded-2xl px-4 pt-5 pb-2 text-white font-sans outline-none focus:ring-1 transition-all peer ${
           error ? 'border-red-500 focus:border-red-500 focus:ring-red-500/20' : 'border-white/10 focus:border-primary focus:ring-primary'
         }`}
         placeholder=" "
@@ -116,7 +117,8 @@ function SelectField({
         id={id}
         value={value}
         onChange={e => onChange(e.target.value)}
-        className={`w-full bg-[#050505] border rounded-lg px-4 py-4 font-sans outline-none focus:ring-1 transition-all appearance-none ${
+        className={`w-full bg-white/[0.03]
+backdrop-blur-xl hover:border-primary/30 border rounded-xl px-4 py-3.5 font-sans outline-none focus:ring-1 transition-all appearance-none ${
           value ? 'text-white' : 'text-muted-foreground'
         } ${
           error ? 'border-red-500 focus:border-red-500 focus:ring-red-500/20' : 'border-white/10 focus:border-primary focus:ring-primary'
@@ -208,9 +210,14 @@ export default function Contact() {
   };
 
   return (
-    <section id="contact" className="py-32 bg-background relative border-t border-white/5 z-10">
+    <section id="contact" className="py-16 md:py-28 bg-background relative border-t border-white/5 z-10">
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+  <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[700px] h-[700px] bg-primary/8 blur-[180px] rounded-full" />
+
+  <div className="absolute bottom-0 right-0 w-[500px] h-[500px] bg-blue-500/6 blur-[160px] rounded-full" />
+</div>
       <div className="container mx-auto px-6 md:px-12" ref={ref}>
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 lg:gap-24">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 md:gap-16 lg:gap-24 items-center ">
 
           {/* Left Side */}
           <motion.div
@@ -218,22 +225,41 @@ export default function Contact() {
             animate={inView ? { opacity: 1, x: 0 } : {}}
             transition={{ duration: 0.8, ease: 'easeOut' }}
           >
-            <h2 className="font-display font-bold text-5xl md:text-7xl text-white leading-[1.1] tracking-tight mb-6">
-              LET'S BUILD<br />
+<h2 className="
+font-display
+font-bold
+
+text-4xl
+sm:text-5xl
+lg:text-7xl
+
+leading-[1.05]
+tracking-tight
+
+mb-4
+">              LET'S BUILD<br />
               <span className="text-muted-foreground">SOMETHING</span><br />
               EXTRAORDINARY
             </h2>
-            <p className="text-xl text-primary font-sans mb-16">We typically respond within 24 hours.</p>
+           <p className="
+text-base
+md:text-lg
 
-            <div className="space-y-10">
+text-primary
+
+mb-8
+md:mb-14
+">We typically respond within 24 hours.</p>
+  <div className="hidden lg:block">
+            <div className="space-y-6 md:space-y-10">
               <div>
                 <div className="text-xs tracking-widest text-muted-foreground uppercase mb-2">Email</div>
                 <a href="mailto:soumya.rbehara007@gmail.com" className="group relative inline-block font-display text-2xl md:text-3xl text-white interactive">
-                  soumya.rbehara007@gmail.com
+                  veltixagency@gmail.com
                   <span className="absolute bottom-0 left-0 w-0 h-[2px] bg-primary transition-all duration-300 group-hover:w-full" />
                 </a>
               </div>
-
+{/* 
               <div>
                 <div className="text-xs tracking-widest text-muted-foreground uppercase mb-2">WhatsApp</div>
                 <a href="#" className="font-display text-xl text-white hover:text-primary transition-colors interactive">
@@ -247,9 +273,9 @@ export default function Contact() {
                   India<br />
                   <span className="text-muted-foreground text-lg">Remote Worldwide</span>
                 </div>
-              </div>
+              </div> */}
 
-              <div className="pt-8 flex space-x-4">
+              <div className="pt-4 md:pt-8 flex space-x-4">
                 {[
                   { Icon: FaXTwitter,   href: '#' },
                   { Icon: FaLinkedinIn, href: '#' },
@@ -258,12 +284,14 @@ export default function Contact() {
                 ].map((s, i) => (
                   <a
                     key={i} href={s.href}
-                    className="w-12 h-12 rounded-full border border-white/10 flex items-center justify-center text-white hover:border-primary hover:bg-primary/10 hover:text-primary transition-all duration-300 interactive group"
+                    className="w-10 h-10 md:w-12 md:h-12 rounded-full border border-white/10 flex items-center justify-center text-white hover:border-primaryhover:bg-primary/15
+hover:shadow-[0_0_30px_rgba(37,99,235,.35)] hover:text-primary transition-all duration-300 interactive group"
                   >
                     <s.Icon className="w-5 h-5 group-hover:scale-110 transition-transform" />
                   </a>
                 ))}
               </div>
+            </div>
             </div>
           </motion.div>
 
@@ -273,11 +301,57 @@ export default function Contact() {
             animate={inView ? { opacity: 1, y: 0 } : {}}
             transition={{ duration: 0.8, delay: 0.2, ease: 'easeOut' }}
           >
-            <form
-              onSubmit={handleSubmit}
-              noValidate
-              className="bg-card p-8 md:p-10 rounded-3xl border border-white/5 shadow-2xl"
-            >
+           <form
+  onSubmit={handleSubmit}
+  noValidate
+  className="
+relative
+overflow-hidden
+
+rounded-[32px]
+
+border
+border-white/10
+
+bg-gradient-to-br
+from-white/[0.08]
+via-white/[0.04]
+to-white/[0.02]
+
+backdrop-blur-3xl
+
+p-5
+sm:p-6
+md:p-8
+
+shadow-[0_30px_80px_rgba(0,0,0,.45)]
+
+transition-all
+duration-500
+hover:border-primary/20
+hover:shadow-[0_35px_100px_rgba(37,99,235,.12)]
+"
+>
+  <div className="absolute -top-32 -right-20 w-72 h-72 rounded-full bg-primary/15 blur-[120px]" />
+
+<div className="absolute -bottom-32 -left-20 w-72 h-72 rounded-full bg-blue-500/10 blur-[140px]" />
+
+<div className="absolute inset-0 rounded-[32px] border border-white/5 pointer-events-none" />
+
+<div className="relative z-10 mb-5">
+  <span className="inline-flex items-center rounded-full border border-primary/20 bg-primary/10 px-4 py-1 text-xs font-medium tracking-wider text-primary uppercase">
+    Let's Connect
+  </span>
+
+  <h3 className="mt-2 text-1xl md:text-4xl font-display font-bold text-white">
+    Start Your Project
+  </h3>
+
+  <p className="mt-3 text-muted-foreground text-sm md:text-base leading-7">
+    Tell us about your vision. We'll review it carefully and reply within
+    <span className="text-white font-medium"> 24 hours.</span>
+  </p>
+</div>
               <AnimatePresence mode="wait">
                 {isSubmitted ? (
                   /* ── Success state ── */
@@ -310,9 +384,9 @@ export default function Contact() {
                   </motion.div>
                 ) : (
                   /* ── Form fields ── */
-                  <motion.div key="form" initial={{ opacity: 1 }} exit={{ opacity: 0 }} className="space-y-6">
+                  <motion.div key="form" initial={{ opacity: 1 }} exit={{ opacity: 0 }} className="space-y-4 md:space-y-5">
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-5">
                       <FloatingInput id="name"  label="Name"  value={form.name}  onChange={setField('name')}  error={errors.name} />
                       <FloatingInput id="email" label="Email" type="email" value={form.email} onChange={setField('email')} error={errors.email} />
                     </div>
@@ -335,7 +409,16 @@ export default function Contact() {
                       <textarea
                         id="message" rows={4} value={form.message}
                         onChange={e => setField('message')(e.target.value)}
-                        className={`w-full bg-[#050505] border rounded-lg px-4 pt-6 pb-2 text-white font-sans outline-none focus:ring-1 transition-all peer resize-none ${
+                        className={`w-full bg-white/[0.03]
+backdrop-blur-xl
+border
+border-white/10
+rounded-2xl
+hover:border-primary/30
+focus:border-primary
+focus:ring-2
+focus:ring-primary/20
+duration-300 px-4 pt-5  pb-3 text-white font-sans outline-none focus:ring-1 transition-all peer resize-none ${
                           errors.message
                             ? 'border-red-500 focus:border-red-500 focus:ring-red-500/20'
                             : 'border-white/10 focus:border-primary focus:ring-primary'
@@ -364,25 +447,201 @@ export default function Contact() {
                       </div>
                     </div>
 
-                    {/* Submit */}
-                    <button
-                      type="submit"
-                      disabled={isSubmitting}
-                      className="w-full h-14 bg-primary text-white font-medium rounded-lg flex items-center justify-center space-x-2 hover:bg-primary/90 hover:shadow-[0_0_20px_rgba(79,140,255,0.4)] transition-all interactive disabled:opacity-70 disabled:cursor-not-allowed"
-                    >
-                      {isSubmitting ? (
-                        <Loader2 className="w-5 h-5 animate-spin" />
-                      ) : (
-                        <>
-                          <span>Send Message</span>
-                          <ArrowRight className="w-4 h-4" />
-                        </>
-                      )}
-                    </button>
+                    {/* Premium Submit Button */}
+<button
+  type="submit"
+  disabled={isSubmitting}
+  className="
+    relative
+    w-full
+    h-12
+    md:h-14
+
+    overflow-hidden
+    rounded-xl
+
+    border
+    border-white/10
+
+    bg-gradient-to-br
+    from-[#3B82F6]
+    via-[#2563EB]
+    to-[#1D4ED8]
+
+    text-white
+    font-semibold
+    text-[15px]
+    md:text-base
+    tracking-[0.02em]
+
+    flex
+    items-center
+    justify-center
+    gap-3
+
+    transition-all
+    duration-500
+
+    shadow-[0_10px_40px_rgba(37,99,235,0.28)]
+
+    hover:-translate-y-1
+    hover:shadow-[0_20px_70px_rgba(37,99,235,0.5)]
+
+    active:scale-[0.97]
+
+    disabled:opacity-70
+    disabled:cursor-not-allowed
+
+    group
+  "
+>
+  {/* Glass Reflection */}
+  <div className="absolute inset-0 rounded-2xl border border-white/10" />
+
+  <div
+    className="
+      absolute
+      inset-[1px]
+      rounded-2xl
+      bg-gradient-to-b
+      from-white/15
+      via-white/5
+      to-transparent
+      opacity-70
+    "
+  />
+
+  {/* Animated Shine */}
+  <div
+    className="
+      absolute
+      inset-0
+
+      bg-gradient-to-r
+      from-transparent
+      via-white/25
+      to-transparent
+
+      -translate-x-[150%]
+
+      group-hover:translate-x-[150%]
+
+      transition-transform
+      duration-1000
+    "
+  />
+
+  {/* Glow */}
+  <div
+    className="
+      absolute
+      inset-0
+
+      rounded-2xl
+
+      opacity-0
+      group-hover:opacity-100
+
+      transition-opacity
+      duration-500
+
+      bg-[radial-gradient(circle_at_center,rgba(255,255,255,0.18),transparent_70%)]
+    "
+  />
+
+  {/* Content */}
+  <span className="relative z-10 flex items-center gap-3">
+    {isSubmitting ? (
+      <>
+        <Loader2 className="w-5 h-5 animate-spin" />
+        <span>Sending Your Request...</span>
+      </>
+    ) : (
+      <>
+        <span className="font-medium">
+          Start Your Project
+        </span>
+
+        <span
+          className="
+            flex
+            items-center
+            justify-center
+
+            w-6
+            h-6
+
+            rounded-full
+
+            bg-white/15
+            backdrop-blur-md
+
+            border
+            border-white/20
+
+            transition-all
+            duration-300
+
+            group-hover:bg-white/25
+            group-hover:scale-110
+          "
+        >
+          <ArrowRight
+            className="
+              w-4
+              h-4
+
+              transition-transform
+              duration-300
+
+              group-hover:translate-x-1
+            "
+          />
+        </span>
+      </>
+    )}
+  </span>
+</button>
+<div className="flex items-center justify-center gap-2 pt-1 text-xs text-muted-foreground">
+  <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+  No spam. Your information stays private.
+</div>
                   </motion.div>
                 )}
               </AnimatePresence>
             </form>
+            {/* for mobile responsive social icons */}
+            <div className="lg:hidden mt-8 text-center">
+
+  <p className="text-xs uppercase tracking-widest text-muted-foreground mb-2">
+    Email
+  </p>
+
+  <a
+    href="mailto:veltixagency@gmail.com"
+    className="text-white font-medium hover:text-primary transition-colors"
+  >
+    veltixagency@gmail.com
+  </a>
+
+  <div className="flex justify-center gap-3 mt-5">
+    {[
+      { Icon: FaXTwitter, href: "#" },
+      { Icon: FaLinkedinIn, href: "#" },
+      { Icon: FaDribbble, href: "#" },
+      { Icon: FaGithub, href: "#" },
+    ].map((s, i) => (
+      <a
+        key={i}
+        href={s.href}
+        className="w-10 h-10 rounded-full border border-white/10 flex items-center justify-center text-white hover:border-primary hover:bg-primary/10 transition-all"
+      >
+        <s.Icon className="w-4 h-4" />
+      </a>
+    ))}
+  </div>
+
+</div>
           </motion.div>
 
         </div>
