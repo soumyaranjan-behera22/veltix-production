@@ -7,6 +7,7 @@ const router: IRouter = Router();
 
 const FROM = "VELTIX <team@veltix.in>"; // change to a verified domain sender in production
 const ADMIN = "pinkibehera671@gmail.com";
+const resend = new Resend(process.env.RESEND_API_KEY);
 
 
 
@@ -178,33 +179,81 @@ router.post("/contact", async (req, res): Promise<void> => {
     dateStyle: "full",
     timeStyle: "short",
   });
+const adminEmailHtml = adminHtml(
+  {
+    name,
+    email,
+    project,
+    budget,
+    message,
+  },
+  submittedAt
+);
 
-  const resend = new Resend(process.env.RESEND_API_KEY);
+const autoReplyEmailHtml = autoReplyHtml({
+  name,
+  email,
+  project,
+  budget,
+  message,
+});
 
   try {
-    await resend.emails.send({
+  // Frontend ko immediately success bhejo
+  res.status(200).json({
+    success: true,
+    message: "Request received successfully.",
+  });
+  
+// Start timer
+const start = Date.now();
+
+  // Background me emails send karo
+  void Promise.all([
+    resend.emails.send({
       from: FROM,
       to: ADMIN,
       replyTo: email,
       subject: "🚀 New VELTIX Project Inquiry",
-      html: adminHtml({ name, email, project, budget, message }, submittedAt),
-    });
+      html: adminHtml(
+        { name, email, project, budget, message },
+        submittedAt
+      ),
+    }),
 
-    await resend.emails.send({
+    resend.emails.send({
       from: FROM,
       to: email,
       replyTo: "pinkibehera671@gmail.com",
       subject: "✨ Thanks for contacting VELTIX",
-      html: autoReplyHtml({ name, email, project, budget, message }),
+      html: autoReplyHtml({
+        name,
+        email,
+        project,
+        budget,
+        message,
+      }),
+    }),
+  ])
+    .then(() => {
+  logger.info(
+    {
+      duration: `${Date.now() - start}ms`,
+    },
+    "Both emails sent successfully"
+  );
+})
+    .catch((err) => {
+      logger.error({ err }, "Background email sending failed");
     });
 
-    res.status(200).json({ success: true, message: "Emails sent successfully" });
-  } catch (err) {
-    req.log.error({ err }, "Resend error while sending contact emails");
-    res
-      .status(500)
-      .json({ success: false, error: "Failed to send email. Please try again." });
-  }
+} catch (err) {
+  req.log.error({ err }, "Unexpected error");
+  res.status(500).json({
+    success: false,
+    error: "Failed to process request.",
+  });
+}
 });
 
 export default router;
