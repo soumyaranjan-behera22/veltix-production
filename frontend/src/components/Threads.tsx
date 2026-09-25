@@ -176,7 +176,8 @@ const Threads: React.FC<ThreadsProps> = ({
     const MAX_RENDER_DIM = 1920;
     function resize() {
       const { clientWidth, clientHeight } = container;
-      const baseDpr = Math.min(window.devicePixelRatio || 1, 2);
+            const isTouch = window.matchMedia("(pointer: coarse)").matches;
+      const baseDpr = Math.min(window.devicePixelRatio || 1, isTouch ? 1 : 2);
       const longestSide = Math.max(clientWidth, clientHeight) * baseDpr;
       const dpr = longestSide > MAX_RENDER_DIM ? (baseDpr * MAX_RENDER_DIM) / longestSide : baseDpr;
       renderer.dpr = dpr;
