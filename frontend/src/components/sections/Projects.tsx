@@ -9,7 +9,7 @@ const projects = [
     category: "Fintech",
     year: "2024",
     tech: ["React", "Node.js", "Stripe"],
-    bgClass: "bg-gradient-to-br from-[#0D1B2A] to-[#050505]",
+    image: "/nexa.png",
     colSpan: "col-span-1 md:col-span-2"
   },
   {
@@ -18,7 +18,7 @@ const projects = [
     category: "E-Commerce",
     year: "2024",
     tech: ["Next.js", "Shopify", "Three.js"],
-    bgClass: "bg-gradient-to-br from-[#2A1508] to-[#050505]",
+    image: "/images/projects/orion.jpg",
     colSpan: "col-span-1"
   },
   {
@@ -27,7 +27,7 @@ const projects = [
     category: "SaaS",
     year: "2023",
     tech: ["React", "Python", "OpenAI"],
-    bgClass: "bg-gradient-to-br from-[#1A0B2E] to-[#050505]",
+    image: "/images/projects/luminary.jpg",
     colSpan: "col-span-1"
   }
 ];
@@ -88,9 +88,15 @@ export default function Projects() {
               className="relative shrink-0 w-[85vw] sm:w-[420px] snap-center rounded-2xl overflow-hidden aspect-[4/5] group interactive"
               data-cursor="view"
             >
-              {/* Abstract Background */}
-              <div className={`absolute inset-0 ${project.bgClass}`} />
+              {/* Abstract Background
+              <div className={`absolute inset-0 ${project.bgClass}`} /> */}
+<img
+    src={project.image}
+    alt={project.title}
+    className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+/>
 
+<div className="absolute inset-0 bg-gradient-to-t from-black via-black/35 to-black/10" />
               {/* Top Meta */}
               <div className="absolute top-6 left-6 right-6 flex justify-between text-white z-10">
                 <span className="font-display text-xl font-bold opacity-70">{project.id}</span>
@@ -127,12 +133,19 @@ export default function Projects() {
               initial={{ opacity: 0, y: 50 }}
               animate={gridInView ? { opacity: 1, y: 0 } : {}}
               transition={{ duration: 0.7, delay: i * 0.2, ease: [0.25, 0.46, 0.45, 0.94] }}
-              className={`${project.colSpan} relative rounded-2xl overflow-hidden h-[600px] group interactive`}
+              // className={`${project.colSpan} relative rounded-2xl overflow-hidden h-[600px] group interactive`}
+              className={`${project.colSpan} relative rounded-2xl overflow-hidden h-[600px] group interactive shadow-2xl border border-white/5`}
               data-cursor="view"
             >
               {/* Abstract Background */}
-              <div className={`absolute inset-0 ${project.bgClass} transition-transform duration-700 group-hover:scale-105`} />
-              
+              {/* <div className={`absolute inset-0 ${project.bgClass} transition-transform duration-700 group-hover:scale-105`} /> */}
+              <img
+    src={project.image}
+    alt={project.title}
+    className="absolute inset-0 w-full h-full object-cover transition-all duration-700 ease-out"  // group-hover:scale-110
+/>
+
+<div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-black/10" />
               {/* Glass Overlay on hover */}
               <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
               
@@ -147,7 +160,7 @@ export default function Projects() {
 
               {/* Bottom Content */}
               <div className="absolute bottom-0 left-0 w-full p-8 translate-y-8 group-hover:translate-y-0 transition-transform duration-500 z-10">
-                <h3 className="font-display font-bold text-3xl md:text-4xl text-white mb-4">{project.title}</h3>
+                <h3 className="font-display font-bold text-3xl md:text-4xl lg:text-5xl leading-tight text-white mb-4">{project.title}</h3>
                 
                 <div className="flex flex-wrap items-center gap-3 opacity-0 group-hover:opacity-100 transition-opacity duration-500 delay-100">
                   {project.tech.map((t, idx) => (
@@ -155,7 +168,7 @@ export default function Projects() {
                       {t}
                     </span>
                   ))}
-                  <div className="ml-auto w-10 h-10 rounded-full bg-primary flex items-center justify-center">
+                  <div className="ml-auto w-12 h-12 rounded-full bg-white/15 backdrop-blur-md border border-white/20 flex items-center justify-center group-hover:bg-primary transition-all duration-300">
                     <span className="text-white transform -rotate-45 group-hover:rotate-0 transition-transform duration-300">→</span>
                   </div>
                 </div>
