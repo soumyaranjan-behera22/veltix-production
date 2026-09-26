@@ -214,7 +214,7 @@ function Pill({ kind, i, n, progress }: { kind: "site" | "phone"; i: number; n: 
       }`}
     >
       {kind === "site" ? (
-        <img src="/nexa-reel.webp" alt="" className="h-full w-full object-cover" />
+        <img src="/hero-visual.webp" alt="" className="h-full w-full object-cover" />
       ) : (
         <Smartphone className="h-[0.5em] w-[0.5em] text-white" strokeWidth={2.2} />
       )}
