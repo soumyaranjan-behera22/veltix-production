@@ -27,6 +27,11 @@ const SOCIALS: { label: string; href: string }[] = [
   // { label: "LinkedIn", href: "https://www.linkedin.com/company/your-page" },
   // { label: "Instagram", href: "https://www.instagram.com/your-handle" },
 ];
+// Who builds Veltix. linkedin is optional: leave "" for plain text.
+const FOUNDER = {
+  name: "Soumya.",
+  linkedin: "https://www.linkedin.com/in/soumyaranjan-behera007/", // e.g. "https://www.linkedin.com/in/your-profile"
+};
 
 const WORDMARK = "VELTIX";
 const EASE = [0.76, 0, 0.24, 1] as const;
@@ -230,7 +235,22 @@ export default function Footer() {
               <li>
                 <IndiaTime />
               </li>
-              <li>Replies within 24 hours</li>
+                            <li>Replies within 24 hours</li>
+              <li className="text-muted-foreground">
+                Founded by{" "}
+                {FOUNDER.linkedin ? (
+                    <a                  
+                    href={FOUNDER.linkedin}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="interactive text-white/85 underline decoration-white/20 underline-offset-4 transition-colors hover:text-white hover:decoration-white/60"
+                  >
+                    {FOUNDER.name}
+                  </a>
+                ) : (
+                  <span className="text-white/85">{FOUNDER.name}</span>
+                )}
+              </li>
             </ul>
           </div>
 
@@ -263,11 +283,13 @@ export default function Footer() {
 
       {/* Bottom bar */}
       <div className="container mx-auto flex items-center justify-between gap-4 px-5 pb-8 pt-6 font-sans text-sm text-muted-foreground md:px-12">
-        <span>© {year} Veltix</span>
-        <button
+               <span>
+          © {year} Veltix · Built by {FOUNDER.name}
+        </span>
+                <button
           type="button"
           onClick={backToTop}
-          className="interactive flex h-11 items-center gap-2 text-white/85 transition-colors hover:text-white"
+          className="interactive flex h-11 shrink-0 items-center gap-2 whitespace-nowrap text-white/85 transition-colors hover:text-white"
         >
           Back to top <ArrowUp className="h-4 w-4" />
         </button>

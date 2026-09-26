@@ -11,6 +11,7 @@ import { ArrowUpRight } from "lucide-react";
 import { useScrollInView } from "@/lib/useScrollInView";
 import { scrollToSection } from "@/lib/smoothscroll";
 import FlowingMenu from "@/components/FlowingMenu";
+import SectionHeading from "@/components/SectionHeading";
 
 // Edit services here. Images live in frontend/public/services/.
 // "included" should list what you actually deliver.
@@ -217,14 +218,7 @@ export default function Services() {
           >
             Services
           </motion.p>
-          <motion.h2
-            initial={{ opacity: 0, y: 30 }}
-            animate={headerInView ? { opacity: 1, y: 0 } : {}}
-            transition={{ duration: 0.8, delay: 0.1, ease: [0.25, 0.46, 0.45, 0.94] }}
-            className="font-display text-5xl font-medium leading-none tracking-[-0.03em] text-white md:text-7xl"
-          >
-            What we build
-          </motion.h2>
+            <SectionHeading className="font-display text-5xl font-medium leading-none tracking-[-0.03em] text-white md:text-7xl">What we build</SectionHeading>
           <motion.p
             initial={{ opacity: 0, y: 20 }}
             animate={headerInView ? { opacity: 1, y: 0 } : {}}

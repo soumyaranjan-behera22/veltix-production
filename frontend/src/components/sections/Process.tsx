@@ -224,7 +224,7 @@ function Header() {
       </motion.p>
            {reduceMotion ? (
         <h2 className="max-w-[18ch] font-display text-4xl font-medium leading-[1.05] tracking-[-0.03em] text-white md:text-6xl">
-          From first call to launch in seven weeks.
+          From first call to launch in seven weeks Or INn 24Hrs
         </h2>
       ) : (
         <ScrollReveal

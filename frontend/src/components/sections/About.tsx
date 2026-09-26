@@ -1,176 +1,7 @@
-import React, { useEffect, useRef, useState } from 'react';
+import { useRef } from 'react';
 import { motion, useReducedMotion, useScroll, useTransform, type MotionValue } from 'framer-motion';
-import { useScrollInView } from '@/lib/useScrollInView';
-import { MousePointer2, Smartphone } from 'lucide-react';
-import SpotlightCard from '@/components/SpotlightCard';
-
-// Same easing curve as the hero, so motion feels consistent across the site.
-const EASE = [0.76, 0, 0.24, 1] as const;
-
-const PRINCIPLES = [
-  {
-    title: "Obsessive craft",
-    desc: "Every micro-interaction is considered. We don't stop when it works; we stop when it feels right.",
-  },
-  {
-    title: "Performance first",
-    desc: "Speed is a feature. We build lightweight sites that rank higher and convert better.",
-  },
-  {
-    title: "Conversion driven",
-    desc: "Beauty without function is art. We design every page to guide visitors to one clear action.",
-  },
-];
-
-// Proof 1: a designer's redline measuring the gap between two elements.
-function CraftProof({ on }: { on: boolean }) {
-  return (
-    <div className="relative h-24 rounded-lg border border-white/10">
-      <div className="absolute left-5 top-5 h-14 w-14 rounded-md border border-white/20" />
-      <div className="absolute right-5 top-5 h-14 w-14 rounded-md border border-white/20" />
-      <motion.div
-        className="absolute left-[76px] right-[76px] top-12 h-px origin-left bg-primary"
-        initial={false}
-        animate={{ scaleX: on ? 1 : 0 }}
-        transition={{ duration: 0.5, ease: EASE }}
-      />
-      <span className="absolute left-1/2 top-6 -translate-x-1/2 font-sans text-xs text-primary">
-        24
-      </span>
-    </div>
-  );
-}
-
-// Proof 2: this page's real load time, measured by the visitor's browser.
-function SpeedProof() {
-  const [seconds, setSeconds] = useState<string | null>(null);
-  useEffect(() => {
-    const read = () => {
-      const nav = performance.getEntriesByType("navigation")[0] as
-        | PerformanceNavigationTiming
-        | undefined;
-      if (nav && nav.loadEventEnd > 0) {
-        setSeconds((nav.loadEventEnd / 1000).toFixed(1));
-      }
-    };
-    if (document.readyState === "complete") read();
-    else window.addEventListener("load", read, { once: true });
-  }, []);
-  return (
-    <div className="flex h-24 flex-col justify-center rounded-lg border border-white/10 px-5 font-sans">
-      <span className="text-xs text-muted-foreground">This page loaded in</span>
-      <span className="font-display text-3xl font-medium text-white">
-        {seconds ? `${seconds}s` : "..."}
-      </span>
-      <span className="text-xs text-muted-foreground">measured on your device</span>
-    </div>
-  );
-}
-
-// Proof 3: a cursor guided to one clear action.
-function ConvertProof({ on }: { on: boolean }) {
-  return (
-    <div className="relative h-24 overflow-hidden rounded-lg border border-white/10">
-      <span className="absolute bottom-4 right-4 rounded-full bg-primary px-3.5 py-1.5 font-sans text-xs font-medium text-white">
-        Start a project
-      </span>
-      <motion.span
-        className="absolute left-5 top-4 text-white"
-        initial={false}
-        animate={on ? { x: 110, y: 38 } : { x: 0, y: 0 }}
-        transition={{ duration: 0.8, ease: EASE }}
-      >
-        <MousePointer2 className="h-5 w-5" />
-      </motion.span>
-    </div>
-  );
-}
-
-function Principles({ inView }: { inView: boolean }) {
-  const [active, setActive] = useState(0);
-  const rowRefs = useRef<(HTMLDivElement | null)[]>([]);
-
-  // Phones have no hover, so the row crossing the middle of the screen
-  // becomes active as you scroll. The margin shrinks the "viewport" to a
-  // thin band across the centre of the screen.
-  useEffect(() => {
-    if (!window.matchMedia("(pointer: coarse)").matches) return;
-    const io = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (!entry.isIntersecting) return;
-          const i = rowRefs.current.indexOf(entry.target as HTMLDivElement);
-          if (i >= 0) setActive(i);
-        });
-      },
-      { rootMargin: "-45% 0px -45% 0px" },
-    );
-    rowRefs.current.forEach((row) => row && io.observe(row));
-    return () => io.disconnect();
-  }, []);
-
-  return (
-    <div className="border-b border-white/10">
-      {PRINCIPLES.map((item, i) => {
-        const on = active === i;
-        return (
-          <motion.div
-            key={item.title}
-            initial={{ opacity: 0, y: 40 }}
-            animate={inView ? { opacity: 1, y: 0 } : {}}
-            transition={{ duration: 0.7, delay: i * 0.15, ease: [0.25, 0.46, 0.45, 0.94] }}
-          >
-            <SpotlightCard
-              spotlightColor="rgba(79, 140, 255, 0.12)"
-              className="border-t border-white/10"
-            >
-              <div
-                ref={(el) => {
-                  rowRefs.current[i] = el;
-                }}
-                onMouseEnter={() => setActive(i)}
-                className="interactive grid grid-cols-1 gap-6 px-3 py-10 md:grid-cols-[minmax(0,1fr)_240px] md:items-center md:gap-12 md:px-6"
-              >
-                <div>
-                  <h3
-                    className={`relative inline-block font-display text-[34px] font-medium leading-tight tracking-[-0.03em] transition-colors duration-300 md:text-5xl ${
-                      on ? "text-white" : "text-[#6b6b6b]"
-                    }`}
-                  >
-                    {item.title}
-                    {on && (
-                      <motion.span
-                        layoutId="principle-frame"
-                        aria-hidden="true"
-                        className="pointer-events-none absolute -inset-x-2 -inset-y-1 border-2 border-primary"
-                        transition={{ duration: 0.45, ease: EASE }}
-                      >
-                        <span className="absolute -left-[5px] -top-[5px] h-[9px] w-[9px] border-2 border-primary bg-background" />
-                        <span className="absolute -bottom-[5px] -right-[5px] h-[9px] w-[9px] border-2 border-primary bg-background" />
-                      </motion.span>
-                    )}
-                  </h3>
-                  <p className="mt-4 max-w-[46ch] font-sans text-base leading-relaxed text-muted-foreground">
-                    {item.desc}
-                  </p>
-                </div>
-                <div
-                  className={`max-w-[280px] transition-opacity duration-300 ${
-                    on ? "opacity-100" : "opacity-40"
-                  }`}
-                >
-                  {i === 0 && <CraftProof on={on} />}
-                  {i === 1 && <SpeedProof />}
-                  {i === 2 && <ConvertProof on={on} />}
-                </div>
-              </div>
-            </SpotlightCard>
-          </motion.div>
-        );
-      })}
-    </div>
-  );
-}
+import { Smartphone } from 'lucide-react';
+import PrinciplesSection from '@/components/Principles';
 
 // ---------------------------------------------------------------------------
 // Manifesto: the first thing visitors read after the hero.
@@ -276,18 +107,14 @@ function Manifesto() {
 }
 
 export default function About() {
-  const { ref: sectionCRef, inView: sectionCInView } = useScrollInView({ threshold: 0.15, triggerOnce: true });
-
   return (
     // No overflow-hidden here: it would stop the manifesto from pinning.
     <section id="about" className="relative z-10 bg-background pb-24 md:pb-32">
       <Manifesto />
 
       <div className="container mx-auto mt-16 px-6 md:mt-24 md:px-12">
-        {/* Principles */}
-        <div ref={sectionCRef}>
-          <Principles inView={sectionCInView} />
-        </div>
+        {/* Principles: pinned list + proof stage on desktop, cards on phones */}
+        <PrinciplesSection />
       </div>
     </section>
   );
