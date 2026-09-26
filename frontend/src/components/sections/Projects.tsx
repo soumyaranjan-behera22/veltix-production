@@ -1,181 +1,233 @@
-import React from 'react';
-import { motion } from 'framer-motion';
-import { useScrollInView } from '@/lib/useScrollInView';
+import { createRef, useEffect, useRef, useState, type RefObject } from "react";
+import {
+  motion,
+  useReducedMotion,
+  useScroll,
+  useTransform,
+} from "framer-motion";
+import { ArrowUpRight } from "lucide-react";
+import SectionHeading from "@/components/SectionHeading";
 
-const projects = [
+// ---------------------------------------------------------------------------
+// Your projects. Add one object per real project, in the order you want.
+// Put each screenshot in frontend/public/work/ (about 1600px wide).
+// url is optional: leave it out and the card simply has no "Visit site" link.
+// ---------------------------------------------------------------------------
+type Project = {
+  title: string;
+  summary: string;
+  category: string;
+  year: string;
+  tech: string[];
+  image: string;
+  url?: string;
+};
+
+const PROJECTS: Project[] = [
   {
-    id: "01",
-    title: "NexaBank — Digital Banking Platform",
+    title: "NexaBank",
+    summary: "Digital banking platform",
     category: "Fintech",
     year: "2024",
     tech: ["React", "Node.js", "Stripe"],
     image: "/nexa.png",
-    colSpan: "col-span-1 md:col-span-2"
+  },
+  // Concept work: self-initiated designs, labelled "concept" so visitors
+  // know they aren't client projects. Replace them as real work comes in.
+  {
+    title: "Ember",
+    summary: "Concept: coffee subscription store",
+    category: "E-commerce concept",
+    year: "2026",
+    tech: ["React", "Shopify"],
+    image: "/work/ember.webp",
   },
   {
-    id: "02",
-    title: "Orion Commerce — Revolution",
-    category: "E-Commerce",
-    year: "2024",
-    tech: ["Next.js", "Shopify", "Three.js"],
-    image: "/images/projects/orion.jpg",
-    colSpan: "col-span-1"
+    title: "Stride",
+    summary: "Concept: fitness app landing page",
+    category: "App landing concept",
+    year: "2026",
+    tech: ["Next.js", "Framer Motion"],
+    image: "/work/stride.webp",
   },
   {
-    id: "03",
-    title: "Luminary AI — SaaS Dashboard",
-    category: "SaaS",
-    year: "2023",
-    tech: ["React", "Python", "OpenAI"],
-    image: "/images/projects/luminary.jpg",
-    colSpan: "col-span-1"
-  }
+    title: "Nivaas",
+    summary: "Concept: homestay booking site",
+    category: "Booking concept",
+    year: "2026",
+    tech: ["React", "Node.js"],
+    image: "/work/nivaas.webp",
+  },
+  // {
+  //   title: "Project name",
+  //   summary: "One line on what you built",
+  //   category: "E-commerce",
+  //   year: "2025",
+  //   tech: ["Next.js", "Shopify"],
+  //   image: "/work/project-name.webp",
+  //   url: "https://example.com",
+  // },
 ];
 
-export default function Projects() {
-  const { ref: headerRef, inView: headerInView } = useScrollInView({ threshold: 0.1, triggerOnce: true });
-  const { ref: gridRef, inView: gridInView } = useScrollInView({ threshold: 0.1, triggerOnce: true });
+// Same stacking feel as React Bits ScrollStack, built on the page's own
+// scroll instead of starting a second smooth-scroll engine.
+const STACK = {
+  topDesktop: 104, // where the first card sticks, in px from the top
+  topPhone: 84,
+  bandDesktop: 52, // height of each card's coloured strip, which is also
+  bandPhone: 44, //   how much of each earlier card stays visible
+  baseScale: 0.88, // how small the back card gets...
+  scaleStep: 0.03, // ...each later card shrinks a little less (the staircase)
+};
+
+// Strip colours, in order. They repeat if you have more projects.
+// ink is the text colour that reads on that strip.
+const ACCENTS = [
+  { bg: "#4F8CFF", ink: "#ffffff" }, // Veltix blue
+  { bg: "#F3EFE6", ink: "#1a1a1a" }, // paper, same as the Pricing receipt
+  { bg: "#1E3A8A", ink: "#ffffff" }, // deep navy
+];
+
+function StackCard({
+  project,
+  i,
+  total,
+  selfRef,
+  nextRef,
+  isDesktop,
+  reduceMotion,
+}: {
+  project: Project;
+  i: number;
+  total: number;
+  selfRef: RefObject<HTMLDivElement | null>;
+  nextRef: RefObject<HTMLDivElement | null>;
+  isDesktop: boolean;
+  reduceMotion: boolean | null;
+}) {
+  const band = isDesktop ? STACK.bandDesktop : STACK.bandPhone;
+  const topFor = (n: number) => (isDesktop ? STACK.topDesktop : STACK.topPhone) + n * band;
+  const top = topFor(i);
+  const isLast = i === total - 1;
+  const accent = ACCENTS[i % ACCENTS.length];
+
+  // This card gets covered by the NEXT card: 0 when the next card enters the
+  // bottom of the screen, 1 when it reaches its own sticky spot on top.
+  const { scrollYProgress: next } = useScroll({
+    target: isLast ? selfRef : nextRef,
+    offset: ["start end", `start ${topFor(i + 1)}px`],
+  });
+  // Covered cards shrink toward their staircase size. The last card is never
+  // covered, so it stays full size. Written as functions for the same reason
+  // as the hero (native scroll timelines misfire on sticky elements).
+  const target = Math.min(STACK.baseScale + i * STACK.scaleStep, 1);
+  const scale = useTransform(next, (v) => {
+    if (reduceMotion || isLast) return 1;
+    const c = Math.min(Math.max(v, 0), 1);
+    return 1 - c * (1 - target);
+  });
+
+  const num = String(i + 1).padStart(2, "0");
 
   return (
-    <section id="work" className="py-32 bg-background relative z-10">
-      <div className="container mx-auto px-6 md:px-12">
-        
-        <div ref={headerRef} className="flex flex-col md:flex-row md:items-end justify-between mb-20">
-          <div>
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={headerInView ? { opacity: 1, y: 0 } : {}}
-              transition={{ duration: 0.6 }}
-              className="flex items-center space-x-3 mb-6"
-            >
-              <span className="w-8 h-px bg-primary"></span>
-              <span className="text-primary text-xs tracking-[0.2em] uppercase font-semibold">Portfolio</span>
-            </motion.div>
-            <motion.h2 
-              initial={{ opacity: 0, y: 30 }}
-              animate={headerInView ? { opacity: 1, y: 0 } : {}}
-              transition={{ duration: 0.8, delay: 0.1 }}
-              className="font-display font-bold text-5xl md:text-7xl text-white tracking-tight"
-            >
-              FEATURED WORK
-            </motion.h2>
-          </div>
-          
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={headerInView ? { opacity: 1 } : {}}
-            transition={{ duration: 0.8, delay: 0.3 }}
-            className="mt-8 md:mt-0"
-          >
-            <button className="text-white border-b border-white pb-1 hover:text-primary hover:border-primary transition-colors interactive">
-              View All Projects
-            </button>
-          </motion.div>
-        </div>
-
-        {/* Mobile & tablet: horizontal swipe/snap carousel */}
-        <div ref={gridRef}>
+    <div ref={selfRef} className="sticky mb-[14svh] last:mb-0" style={{ top }}>
+      <motion.article
+        style={{ scale }}
+        className="relative origin-top overflow-hidden rounded-3xl bg-[#0c0d10] shadow-[0_-12px_40px_rgba(0,0,0,0.55)]"
+      >
+        {/* Coloured strip: stays visible when later cards stack on top */}
         <div
-          
-          className="lg:hidden -mx-6 md:-mx-12 flex gap-5 overflow-x-auto snap-x snap-mandatory scrollbar-none px-6 md:px-12 pb-2"
+          className="flex items-center justify-between gap-4 px-6 font-sans text-sm font-medium md:px-10"
+          style={{ height: band, background: accent.bg, color: accent.ink }}
         >
-          {projects.map((project, i) => (
-            <motion.div
-              key={project.id}
-              initial={{ opacity: 0, y: 50 }}
-              animate={gridInView ? { opacity: 1, y: 0 } : {}}
-              transition={{ duration: 0.6, delay: i * 0.12, ease: [0.25, 0.46, 0.45, 0.94] }}
-              className="relative shrink-0 w-[85vw] sm:w-[420px] snap-center rounded-2xl overflow-hidden aspect-[4/5] group interactive"
-              data-cursor="view"
-            >
-              {/* Abstract Background
-              <div className={`absolute inset-0 ${project.bgClass}`} /> */}
-<img
-    src={project.image}
-    alt={project.title}
-    className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-/>
-
-<div className="absolute inset-0 bg-gradient-to-t from-black via-black/35 to-black/10" />
-              {/* Top Meta */}
-              <div className="absolute top-6 left-6 right-6 flex justify-between text-white z-10">
-                <span className="font-display text-xl font-bold opacity-70">{project.id}</span>
-                <div className="flex space-x-4 text-xs font-sans tracking-widest uppercase opacity-70">
-                  <span>{project.category}</span>
-                  <span>{project.year}</span>
-                </div>
-              </div>
-
-              {/* Bottom Content */}
-              <div className="absolute bottom-0 left-0 w-full p-6 z-10">
-                <h3 className="font-display font-bold text-2xl text-white mb-4">{project.title}</h3>
-
-                <div className="flex flex-wrap items-center gap-3">
-                  {project.tech.map((t, idx) => (
-                    <span key={idx} className="px-3 py-1 text-xs text-white border border-white/20 rounded-full backdrop-blur-md bg-black/20">
-                      {t}
-                    </span>
-                  ))}
-                  <div className="ml-auto w-10 h-10 rounded-full bg-primary flex items-center justify-center">
-                    <span className="text-white transform -rotate-45">→</span>
-                  </div>
-                </div>
-              </div>
-            </motion.div>
-          ))}
+          <span className="flex items-center gap-3 truncate">
+            <span className="opacity-60">{num}</span>
+            <span className="truncate">{project.title}</span>
+          </span>
+          <span className="shrink-0 opacity-70">
+            {project.category}, {project.year}
+          </span>
         </div>
 
-        {/* Desktop: original grid, unchanged */}
-        <div className="hidden lg:grid grid-cols-2 gap-10">
-          {projects.map((project, i) => (
-            <motion.div
-              key={project.id}
-              initial={{ opacity: 0, y: 50 }}
-              animate={gridInView ? { opacity: 1, y: 0 } : {}}
-              transition={{ duration: 0.7, delay: i * 0.2, ease: [0.25, 0.46, 0.45, 0.94] }}
-              // className={`${project.colSpan} relative rounded-2xl overflow-hidden h-[600px] group interactive`}
-              className={`${project.colSpan} relative rounded-2xl overflow-hidden h-[600px] group interactive shadow-2xl border border-white/5`}
-              data-cursor="view"
-            >
-              {/* Abstract Background */}
-              {/* <div className={`absolute inset-0 ${project.bgClass} transition-transform duration-700 group-hover:scale-105`} /> */}
-              <img
-    src={project.image}
-    alt={project.title}
-    className="absolute inset-0 w-full h-full object-cover transition-all duration-700 ease-out"  // group-hover:scale-110
-/>
+        <div className="grid grid-cols-1 border-x border-b border-white/10 lg:h-[min(500px,calc(100svh-340px))] lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] rounded-b-3xl">
+          {/* Screenshot: on top on phones, on the right on desktop */}
+          <div className="relative order-1 aspect-[16/10] overflow-hidden border-b border-white/10 lg:order-2 lg:aspect-auto lg:h-full lg:border-b-0 lg:border-l">
+            <img
+              src={project.image}
+              alt={`${project.title}, ${project.summary}`}
+              loading="lazy"
+              className="h-full w-full object-cover object-top"
+            />
+          </div>
 
-<div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-black/10" />
-              {/* Glass Overlay on hover */}
-              <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-              
-              {/* Top Meta */}
-              <div className="absolute top-8 left-8 right-8 flex justify-between text-white z-10">
-                <span className="font-display text-xl font-bold opacity-50 group-hover:opacity-100 transition-opacity">{project.id}</span>
-                <div className="flex space-x-4 text-xs font-sans tracking-widest uppercase opacity-50 group-hover:opacity-100 transition-opacity">
-                  <span>{project.category}</span>
-                  <span>{project.year}</span>
-                </div>
-              </div>
-
-              {/* Bottom Content */}
-              <div className="absolute bottom-0 left-0 w-full p-8 translate-y-8 group-hover:translate-y-0 transition-transform duration-500 z-10">
-                <h3 className="font-display font-bold text-3xl md:text-4xl lg:text-5xl leading-tight text-white mb-4">{project.title}</h3>
-                
-                <div className="flex flex-wrap items-center gap-3 opacity-0 group-hover:opacity-100 transition-opacity duration-500 delay-100">
-                  {project.tech.map((t, idx) => (
-                    <span key={idx} className="px-3 py-1 text-xs text-white border border-white/20 rounded-full backdrop-blur-md bg-black/20">
-                      {t}
-                    </span>
-                  ))}
-                  <div className="ml-auto w-12 h-12 rounded-full bg-white/15 backdrop-blur-md border border-white/20 flex items-center justify-center group-hover:bg-primary transition-all duration-300">
-                    <span className="text-white transform -rotate-45 group-hover:rotate-0 transition-transform duration-300">→</span>
-                  </div>
-                </div>
-              </div>
-            </motion.div>
-          ))}
+          {/* Details */}
+          <div className="order-2 flex flex-col p-6 md:p-10 lg:order-1 lg:p-12">
+            <h3 className="font-display text-[34px] font-medium leading-none tracking-[-0.03em] text-white md:text-5xl lg:mt-auto lg:text-6xl">
+              {project.title}
+            </h3>
+            <p className="mt-3 font-sans text-base text-muted-foreground md:text-lg">{project.summary}</p>
+            <div className="mt-6 flex flex-wrap items-center gap-2">
+              {project.tech.map((t) => (
+                <span key={t} className="rounded-full border border-white/15 px-3 py-1 font-sans text-xs text-white/85">
+                  {t}
+                </span>
+              ))}
+            </div>
+            {project.url && (
+              <a
+                href={project.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="interactive group mt-8 flex h-12 w-full items-center justify-center gap-2 rounded-2xl border border-white/25 font-sans text-[15px] font-medium text-white transition-colors hover:border-white md:w-fit md:rounded-full md:px-6"
+              >
+                Visit site
+                <ArrowUpRight className="h-4 w-4 transition-transform duration-300 group-hover:rotate-45" />
+              </a>
+            )}
+          </div>
         </div>
+      </motion.article>
+    </div>
+  );
+}
+
+export default function Projects() {
+  const reduceMotion = useReducedMotion();
+  const [isDesktop, setIsDesktop] = useState(false);
+  // One ref per card, so each card can watch the one after it.
+  const cardRefs = useRef(PROJECTS.map(() => createRef<HTMLDivElement>()));
+
+  useEffect(() => {
+    const mq = window.matchMedia("(min-width: 1024px)");
+    const update = () => setIsDesktop(mq.matches);
+    update();
+    mq.addEventListener("change", update);
+    return () => mq.removeEventListener("change", update);
+  }, []);
+
+  return (
+    <section id="work" className="relative z-10 bg-background py-24 md:py-32">
+      <div className="container mx-auto px-5 md:px-12">
+        <div className="mb-12 md:mb-20">
+          <p className="mb-4 font-sans text-sm text-muted-foreground">Work</p>
+          <SectionHeading className="font-display text-5xl font-medium leading-none tracking-[-0.03em] text-white md:text-7xl">
+            Selected work
+          </SectionHeading>
+        </div>
+
+        <div>
+          {PROJECTS.map((project, i) => (
+            <StackCard
+              key={project.title}
+              project={project}
+              i={i}
+              total={PROJECTS.length}
+              selfRef={cardRefs.current[i]}
+              nextRef={cardRefs.current[i + 1] ?? cardRefs.current[i]}
+              isDesktop={isDesktop}
+              reduceMotion={reduceMotion}
+            />
+          ))}
         </div>
       </div>
     </section>
