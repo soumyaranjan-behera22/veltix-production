@@ -1,6 +1,7 @@
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import {
-  motion,
+   motion,
+  useMotionValueEvent,
   useReducedMotion,
   useScroll,
   useTransform,
@@ -26,8 +27,8 @@ const LINES = [
 // poster image is shown instead.
 const REEL = {
   video: "",
-  poster: "/nexa.png",
-  caption: "NexaBank, fintech landing page",
+       poster: "/hero-visual.webp",
+     caption: "Code, design, live: how every Veltix site is built",
 };
 
 // Plays the video if one is set, otherwise shows the poster image.
@@ -150,11 +151,23 @@ export default function Hero() {
   // Desktop: the section is 220svh tall and the stage is sticky,
   // so the pill has 0 to 0.45 of progress to grow to full screen.
   const grow = useTransform(p, [0.02, 0.4], [0, 1], { clamp: true });
-  const expX = useTransform(grow, (g) => pill.x * (1 - g));
-  const expY = useTransform(grow, (g) => pill.y * (1 - g));
-  const expW = useTransform(grow, (g) => pill.w + (stage.w - pill.w) * g);
-  const expH = useTransform(grow, (g) => pill.h + (stage.h - pill.h) * g);
-  const expR = useTransform(grow, (g) => (pill.h / 2) * (1 - g));
+  // Reveal with clip-path and scale with transform: no layout work while scrolling.
+  const s0 = stage.w ? pill.w / stage.w : 1;
+  const expClip = useTransform(grow, (g) => {
+    const k = 1 - g;
+    const top = pill.y * k;
+    const right = (stage.w - pill.x - pill.w) * k;
+    const bottom = (stage.h - pill.y - pill.h) * k;
+    const left = pill.x * k;
+    return `inset(${top}px ${right}px ${bottom}px ${left}px round ${(pill.h / 2) * k}px)`;
+  });
+  const mediaScale = useTransform(grow, (g) => s0 + (1 - s0) * g);
+  const mediaX = useTransform(grow, (g) => pill.x * (1 - g));
+  const mediaY = useTransform(grow, (g) => (pill.y - (stage.h * s0 - pill.h) / 2) * (1 - g));
+
+  // Stop drawing the Threads background once the reel covers the screen.
+  const [threadsPaused, setThreadsPaused] = useState(false);
+  useMotionValueEvent(grow, "change", (g) => setThreadsPaused(g > 0.98));
   // Opacity values are written as functions on purpose: Framer Motion
   // hands simple opacity ranges to the browser's native scroll timeline,
   // which doesn't account for the sticky stage and fires at the wrong time.
@@ -250,7 +263,8 @@ export default function Hero() {
             color={THREADS_COLOR}
             amplitude={1}
             distance={0}
-            enableMouseInteraction={finePointer}
+                       enableMouseInteraction={finePointer}
+            paused={threadsPaused}
           />
         </div>
       )}
@@ -461,18 +475,19 @@ export default function Hero() {
       {/* Desktop scroll moment: grows from the pill to full screen */}
       {!reduceMotion && isDesktop && pill.w > 0 && (
         <motion.div
-          style={{
-            x: expX,
-            y: expY,
-            width: expW,
-            height: expH,
-            borderRadius: expR,
+                    style={{
+            clipPath: expClip,
             opacity: expShow,
             pointerEvents: expPointer,
           }}
-          className="absolute left-0 top-0 z-20 overflow-hidden bg-[#15213a]"
+          className="absolute inset-0 z-20 overflow-hidden bg-[#15213a] will-change-[clip-path]"
         >
-          <ReelMedia />
+          <motion.div
+            style={{ x: mediaX, y: mediaY, scale: mediaScale }}
+            className="absolute inset-0 origin-top-left will-change-transform"
+          >
+            <ReelMedia />
+          </motion.div>
           <motion.div
             style={{ opacity: expCaption }}
             className="absolute inset-x-0 bottom-0 flex items-end justify-between bg-gradient-to-t from-black/70 to-transparent px-12 pb-10 pt-24 font-sans"

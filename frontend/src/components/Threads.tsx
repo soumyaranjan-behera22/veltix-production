@@ -6,6 +6,7 @@ interface ThreadsProps {
   amplitude?: number;
   distance?: number;
   enableMouseInteraction?: boolean;
+  paused?: boolean;
 }
 
 const vertexShader = `
@@ -130,6 +131,7 @@ const Threads: React.FC<ThreadsProps> = ({
   amplitude = 1,
   distance = 0,
   enableMouseInteraction = false,
+    paused = false,
   ...rest
 }) => {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -137,8 +139,8 @@ const Threads: React.FC<ThreadsProps> = ({
 
   // Keep the latest props in a ref so updating them mutates the live shader
   // uniforms instead of tearing down and rebuilding the whole WebGL context.
-  const propsRef = useRef({ color, amplitude, distance, enableMouseInteraction });
-  propsRef.current = { color, amplitude, distance, enableMouseInteraction };
+  const propsRef = useRef({ color, amplitude, distance, enableMouseInteraction, paused });
+  propsRef.current = { color, amplitude, distance, enableMouseInteraction, paused };
 
   useEffect(() => {
     if (!containerRef.current) return;
@@ -173,11 +175,10 @@ const Threads: React.FC<ThreadsProps> = ({
     // its cost scales with the number of rendered pixels. Cap the internal render
     // resolution to keep large / high-DPI screens smooth; the effect is soft
     // enough that the downscale is imperceptible.
-    const MAX_RENDER_DIM = 1920;
+    const MAX_RENDER_DIM = 1280;
     function resize() {
       const { clientWidth, clientHeight } = container;
-            const isTouch = window.matchMedia("(pointer: coarse)").matches;
-      const baseDpr = Math.min(window.devicePixelRatio || 1, isTouch ? 1 : 2);
+      const baseDpr = 1;;
       const longestSide = Math.max(clientWidth, clientHeight) * baseDpr;
       const dpr = longestSide > MAX_RENDER_DIM ? (baseDpr * MAX_RENDER_DIM) / longestSide : baseDpr;
       renderer.dpr = dpr;
@@ -220,7 +221,7 @@ const Threads: React.FC<ThreadsProps> = ({
 
     function update(t: number) {
       animationFrameId.current = requestAnimationFrame(update);
-      if (!isVisible || document.hidden) return;
+      if (!isVisible || document.hidden || propsRef.current.paused) return;
 
       const { color, amplitude, distance, enableMouseInteraction } = propsRef.current;
 
