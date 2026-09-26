@@ -3,6 +3,7 @@ import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { ArrowUpRight } from "lucide-react";
 import { scrollToSection } from "@/lib/smoothscroll";
 import SectionHeading from "@/components/SectionHeading";
+import { PLAN_EVENT } from "@/lib/site";
 
 // ---- Edit your offers here ----
 
@@ -64,8 +65,14 @@ function Clock({ size }: { size: number }) {
   );
 }
 
+// Tells the Contact chat which offer the visitor chose, then glides there.
+function goToContact(plan: string) {
+  window.dispatchEvent(new CustomEvent(PLAN_EVENT, { detail: plan }));
+  scrollToSection("#contact");
+}
+
 function ExpressCard({ compact }: { compact?: boolean }) {
-  const book = () => scrollToSection("#contact");
+  const book = () => goToContact("Express 24-hour build");
   if (compact) {
     // Phone: a wide strip right under the heading
     return (
@@ -238,7 +245,7 @@ export default function Pricing() {
   const [plan, setPlan] = useState(1);
   const [compareOpen, setCompareOpen] = useState(false);
   const p = PLANS[plan];
-  const start = () => scrollToSection("#contact");
+  const start = () => goToContact(`${p.name} plan`);
 
   const compareToggle = (
     <button
