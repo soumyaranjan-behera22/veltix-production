@@ -10,18 +10,18 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
 // Section components
 import Cursor from '@/components/Cursor';
-import Navbar from '@/components/Navbar';
 import Hero from '@/components/sections/Hero';
 import About from '@/components/sections/About';
 import Services from '@/components/sections/Services';
 import WhyVeltix from '@/components/sections/WhyVeltix';
-import Process from '@/components/sections/Process';
-import Projects from '@/components/sections/Projects';
+import Process from "@/components/sections/Process";
+import Projects from "@/components/sections/Projects";
 import Testimonials from '@/components/sections/Testimonials';
 import Pricing from '@/components/sections/Pricing';
 import FAQ from '@/components/sections/FAQ';
 import Contact from '@/components/sections/Contact';
 import Footer from '@/components/sections/Footer';
+import Navbar from '@/components/NavbarPill';
 
 const queryClient = new QueryClient();
 
