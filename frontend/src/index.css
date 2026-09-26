@@ -100,9 +100,15 @@
     color-scheme: dark;
   }
 
-  body {
+    body {
     @apply font-sans antialiased bg-background text-foreground overflow-x-hidden;
-    cursor: none;
+  }
+
+  /* Hide the normal cursor only where the custom cursor is shown */
+  @media (min-width: 1024px) and (pointer: fine) {
+    body {
+      cursor: none;
+    }
   }
 
   /* Noise texture */

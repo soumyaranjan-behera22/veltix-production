@@ -70,7 +70,7 @@ export default function Cursor() {
   }, [rawX, rawY]);
   if (isTouchDevice) return null;
   return (
-    <>
+     <div className="hidden lg:block">
       {/* Inner dot — follows cursor with near-zero lag */}
       <motion.div
         className="fixed top-0 left-0 w-2 h-2 bg-white rounded-full pointer-events-none z-[9999] mix-blend-difference"
@@ -120,6 +120,6 @@ export default function Cursor() {
           </motion.span>
         )}
       </motion.div>
-    </>
+        </div>
   );
 }
