@@ -19,7 +19,7 @@ const EXPRESS = {
 const PLANS = [
   {
     name: "Starter",
-    price: "₹11,999",
+    price: "₹9,999",
     delivery: "14 days",
     pages: "1 landing page",
     revisions: "1 round",

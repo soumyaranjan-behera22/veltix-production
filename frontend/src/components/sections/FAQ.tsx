@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useScrollInView } from '@/lib/useScrollInView';
+import SectionHeading from "@/components/SectionHeading";
 
 const faqs = [
   {
