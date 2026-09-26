@@ -1,41 +1,8 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { motion, useAnimation } from 'framer-motion';
+import { motion, useReducedMotion, useScroll, useTransform, type MotionValue } from 'framer-motion';
 import { useScrollInView } from '@/lib/useScrollInView';
-import { MousePointer2 } from 'lucide-react';
+import { MousePointer2, Smartphone } from 'lucide-react';
 import SpotlightCard from '@/components/SpotlightCard';
-
-const StatCounter = ({ value, suffix, label, duration = 2 }: { value: number, suffix: string, label: string, duration?: number }) => {
-  const [count, setCount] = useState(0);
-  const { ref, inView: isInView } = useScrollInView({ threshold: 0.5, triggerOnce: true });
-
-  useEffect(() => {
-    if (!isInView) return;
-    let start = 0;
-    const end = parseInt(value.toString().substring(0, 3));
-    if (start === end) return;
-
-    const totalMilSecDur = duration * 1000;
-    const incrementTime = (totalMilSecDur / end) * 2;
-
-    const timer = setInterval(() => {
-      start += 1;
-      setCount(start);
-      if (start === end) clearInterval(timer);
-    }, incrementTime);
-
-    return () => clearInterval(timer);
-  }, [value, duration, isInView]);
-
-  return (
-    <div ref={ref as React.RefObject<HTMLDivElement>} className="flex flex-col items-center md:items-start">
-      <div className="font-display font-bold text-5xl md:text-6xl text-white mb-2 flex">
-        {count}
-        <span className="text-primary">{suffix}</span>
-      </div>
-      <div className="text-sm font-sans tracking-wider text-muted-foreground uppercase">{label}</div>
-    </div>
-  );
-};
 
 // Same easing curve as the hero, so motion feels consistent across the site.
 const EASE = [0.76, 0, 0.24, 1] as const;
@@ -205,63 +172,122 @@ function Principles({ inView }: { inView: boolean }) {
   );
 }
 
+// ---------------------------------------------------------------------------
+// Manifesto: the first thing visitors read after the hero.
+// {site} and {phone} are the little image pills inside the sentence.
+// The last word is drawn in Veltix blue.
+// ---------------------------------------------------------------------------
+const MANIFESTO =
+  "We don't build websites to look nice. We build them to {site} bring in customers: fast, clear, and made for the phone {phone} in your hand.";
+
+// Short facts under the manifesto. Only things you can stand behind.
+const FACTS = [
+  { title: "Based in India", detail: "Working with clients worldwide" },
+  { title: "Replies within 24 hours", detail: "From the people who build it" },
+  { title: "Live in 14 to 30 days", detail: "Or 24 hours with Express" },
+];
+
+// How far through the pinned scroll the words finish filling (0 to 1).
+const FILL_END = 0.72;
+
+const clamp01 = (v: number) => Math.min(Math.max(v, 0), 1);
+
+// One word. It fills from dark grey to white (or blue) as the scroll
+// reaches it. Written as functions, like the hero, so the browser's native
+// scroll timeline can't mistime it.
+function Word({ text, i, n, progress, accent }: { text: string; i: number; n: number; progress: MotionValue<number>; accent: boolean }) {
+  const t = useTransform(progress, (p) => clamp01((p / FILL_END) * n - i));
+  const color = useTransform(t, [0, 1], ["#2e2e2e", accent ? "#4F8CFF" : "#ffffff"]);
+  return <motion.span style={{ color }}>{text} </motion.span>;
+}
+
+function Pill({ kind, i, n, progress }: { kind: "site" | "phone"; i: number; n: number; progress: MotionValue<number> }) {
+  const t = useTransform(progress, (p) => clamp01((p / FILL_END) * n - i));
+  const scale = useTransform(t, (v) => 0.5 + v * 0.5);
+  const opacity = useTransform(t, (v) => v);
+  return (
+    <motion.span
+      aria-hidden="true"
+      style={{ scale, opacity }}
+      className={`mr-[0.25em] inline-flex h-[0.78em] translate-y-[0.08em] items-center justify-center overflow-hidden rounded-full align-baseline ${
+        kind === "site" ? "w-[1.9em] bg-[#15213a]" : "w-[1.25em] bg-primary"
+      }`}
+    >
+      {kind === "site" ? (
+        <img src="/nexa-reel.webp" alt="" className="h-full w-full object-cover" />
+      ) : (
+        <Smartphone className="h-[0.5em] w-[0.5em] text-white" strokeWidth={2.2} />
+      )}
+    </motion.span>
+  );
+}
+
+function Fact({ fact, i, progress }: { fact: (typeof FACTS)[number]; i: number; progress: MotionValue<number> }) {
+  const start = FILL_END + 0.04 + i * 0.05;
+  const t = useTransform(progress, (p) => clamp01((p - start) / 0.08));
+  const y = useTransform(t, (v) => (1 - v) * 16);
+  return (
+    <motion.div style={{ opacity: t, y }} className="border-t border-white/15 pt-3 md:pt-4">
+      <p className="font-display text-lg font-medium text-white md:text-xl">{fact.title}</p>
+      <p className="mt-0.5 font-sans text-sm text-muted-foreground">{fact.detail}</p>
+    </motion.div>
+  );
+}
+
+function Manifesto() {
+  const reduceMotion = useReducedMotion();
+  const pinRef = useRef<HTMLDivElement>(null);
+  const { scrollYProgress } = useScroll({ target: pinRef, offset: ["start start", "end end"] });
+  // Reduced motion: everything shown, fully filled, no pinning.
+  const progress = useTransform(scrollYProgress, (p) => (reduceMotion ? 1 : p));
+
+  const tokens = MANIFESTO.split(" ");
+  const n = tokens.length;
+  const plain = MANIFESTO.replace(/\{(site|phone)\} /g, "");
+
+  return (
+    <div ref={pinRef} className={`relative ${reduceMotion ? "" : "h-[210svh] lg:h-[260svh]"}`}>
+      <div className={`${reduceMotion ? "py-24" : "sticky top-0 h-[100svh]"} flex flex-col justify-center`}>
+        <div className="container mx-auto px-5 md:px-12">
+          <p className="mb-5 font-sans text-sm text-muted-foreground md:mb-8">About</p>
+          {/* Screen readers get the sentence once, as plain text */}
+          <h2 className="sr-only">{plain}</h2>
+          <p
+            aria-hidden="true"
+            className="max-w-[24ch] font-display text-[34px] font-medium leading-[1.06] tracking-[-0.03em] sm:text-5xl lg:max-w-[21ch] lg:text-[clamp(56px,5.4vw,92px)]"
+          >
+            {tokens.map((tok, i) =>
+              tok === "{site}" || tok === "{phone}" ? (
+                <Pill key={i} kind={tok === "{site}" ? "site" : "phone"} i={i} n={n} progress={progress} />
+              ) : (
+                <Word key={i} text={tok} i={i} n={n} progress={progress} accent={i === n - 1} />
+              ),
+            )}
+          </p>
+          <div className="mt-10 grid grid-cols-1 gap-4 md:mt-14 md:grid-cols-3 md:gap-8">
+            {FACTS.map((f, i) => (
+              <Fact key={f.title} fact={f} i={i} progress={progress} />
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function About() {
-  const { ref: sectionARef, inView: sectionAInView } = useScrollInView({ threshold: 0.15, triggerOnce: true });
-  const { ref: sectionBRef, inView: sectionBInView } = useScrollInView({ threshold: 0.15, triggerOnce: true });
   const { ref: sectionCRef, inView: sectionCInView } = useScrollInView({ threshold: 0.15, triggerOnce: true });
 
   return (
-    <section id="about" className="py-32 relative bg-background overflow-hidden z-10">
-      <div className="container mx-auto px-6 md:px-12">
-        
-        {/* Section A: Story */}
-        <div ref={sectionARef} className="flex flex-col lg:flex-row items-center justify-between mb-40 relative">
-          <div className="absolute top-1/2 left-0 transform -translate-y-1/2 -z-10 select-none pointer-events-none opacity-[0.03]">
-            <span className="font-display font-bold text-[300px] leading-none">07</span>
-          </div>
-          
-          <motion.div 
-            initial={{ opacity: 0, x: -50 }}
-            animate={sectionAInView ? { opacity: 1, x: 0 } : {}}
-            transition={{ duration: 0.8, ease: "easeOut" }}
-            className="w-full lg:w-1/2 mb-16 lg:mb-0"
-          >
-            <div className="flex items-center space-x-3 mb-6">
-              <span className="w-8 h-px bg-primary"></span>
-              <span className="text-primary text-xs tracking-[0.2em] uppercase font-semibold">Years of Craft</span>
-            </div>
-            <h2 className="font-display font-bold text-4xl md:text-6xl text-white leading-tight mb-8">
-              We don't build websites.<br />
-              <span className="text-gradient">We architect digital experiences</span><br />
-              that compound over time.
-            </h2>
-          </motion.div>
-          
-          <motion.div 
-            initial={{ opacity: 0, y: 30 }}
-            animate={sectionAInView ? { opacity: 1, y: 0 } : {}}
-            transition={{ duration: 0.8, delay: 0.2, ease: "easeOut" }}
-            className="w-full lg:w-[40%]"
-          >
-            <p className="text-xl text-muted-foreground font-sans leading-relaxed">
-              Founded in 2017, VELTIX has shipped 200+ projects across SaaS, E-commerce, Fintech, and Creator Economy. We treat every pixel as a promise and every line of code as craft.
-            </p>
-          </motion.div>
-        </div>
+    // No overflow-hidden here: it would stop the manifesto from pinning.
+    <section id="about" className="relative z-10 bg-background pb-24 md:pb-32">
+      <Manifesto />
 
-        {/* Section B: Stats */}
-        <div ref={sectionBRef} className="grid grid-cols-2 lg:grid-cols-4 gap-12 lg:gap-8 mb-40 border-y border-white/5 py-16">
-          <StatCounter value={200} suffix="+" label="Projects Delivered" />
-          <StatCounter value={98} suffix="%" label="Client Satisfaction" />
-          <StatCounter value={40} suffix="M+" label="Users Reached" />
-          <StatCounter value={12} suffix="" label="Industry Awards" />
-        </div>
-
-        {/* Section C: Principles */}
+      <div className="container mx-auto mt-16 px-6 md:mt-24 md:px-12">
+        {/* Principles */}
         <div ref={sectionCRef}>
           <Principles inView={sectionCInView} />
         </div>
-
       </div>
     </section>
   );
