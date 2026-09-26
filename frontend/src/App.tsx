@@ -27,7 +27,7 @@ const queryClient = new QueryClient();
 
 function Home() {
   return (
-    <div className="relative w-full overflow-hidden bg-background">
+        <div className="relative w-full overflow-x-clip bg-background">
       <Cursor />
       <Navbar />
       <main>

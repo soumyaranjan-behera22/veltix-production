@@ -1,5 +1,10 @@
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
-import { motion, useReducedMotion } from "framer-motion";
+import {
+  motion,
+  useReducedMotion,
+  useScroll,
+  useTransform,
+} from "framer-motion";
 import { ArrowUpRight } from "lucide-react";
 import Threads from "@/components/Threads";
 import { scrollToSection } from "@/lib/smoothscroll";
@@ -15,6 +20,73 @@ const LINES = [
   { text: "websites", className: "ml-[13vw] lg:ml-[22%]" },
   { text: "that win.", className: "text-[#6b6b6b]" },
 ];
+
+// STEP 5: the showreel. When your video is ready, put the MP4 in
+// frontend/public/ and set video to "/your-file.mp4". Until then the
+// poster image is shown instead.
+const REEL = {
+  video: "",
+  poster: "/nexa.png",
+  caption: "NexaBank, fintech landing page",
+};
+
+// Plays the video if one is set, otherwise shows the poster image.
+function ReelMedia({ className = "" }: { className?: string }) {
+  if (REEL.video) {
+    return (
+      <video
+        src={REEL.video}
+        poster={REEL.poster}
+        autoPlay
+        muted
+        loop
+        playsInline
+        preload="metadata"
+        className={`h-full w-full object-cover ${className}`}
+      />
+    );
+  }
+  return (
+    <img
+      src={REEL.poster}
+      alt=""
+      className={`h-full w-full object-cover object-top ${className}`}
+    />
+  );
+}
+
+// Keep this true. Update it whenever your availability changes.
+const AVAILABILITY = "Booking November projects";
+
+// Same services as your Services section, so the ticker never promises
+// something the rest of the site doesn't back up.
+const SERVICES = [
+  "Web Design",
+  "Web Development",
+  "Landing Pages",
+  "E-Commerce",
+  "SEO Optimization",
+  "Brand Identity",
+  "Website Redesign",
+  "AI Integrations",
+];
+
+// Live India time, updated every 30 seconds.
+function IndiaTime() {
+  const format = () =>
+    new Intl.DateTimeFormat("en-IN", {
+      timeZone: "Asia/Kolkata",
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: false,
+    }).format(new Date());
+  const [time, setTime] = useState(format);
+  useEffect(() => {
+    const id = setInterval(() => setTime(format()), 30000);
+    return () => clearInterval(id);
+  }, []);
+  return <span>IST {time}</span>;
+}
 
 const MagnetButton = ({ children, className, ...props }: any) => {
   const ref = useRef<HTMLButtonElement>(null);
@@ -58,6 +130,50 @@ export default function Hero() {
   const [box, setBox] = useState({ x: 0, y: 0, w: 0, h: 0 });
   const [showFrame, setShowFrame] = useState(false);
 
+  // Scroll moment
+  const sectionRef = useRef<HTMLElement>(null);
+  const stageRef = useRef<HTMLDivElement>(null);
+  const pillRef = useRef<HTMLSpanElement>(null);
+  const cardRef = useRef<HTMLButtonElement>(null);
+  const [isDesktop, setIsDesktop] = useState(false);
+  const [pill, setPill] = useState({ x: 0, y: 0, w: 0, h: 0 });
+  const [stage, setStage] = useState({ w: 1, h: 1 });
+  const [cardGrow, setCardGrow] = useState(1);
+
+  // 0 when the hero top is at the top of the screen,
+  // 1 when the hero bottom has scrolled past the top.
+  const { scrollYProgress: p } = useScroll({
+    target: sectionRef,
+    offset: ["start start", "end start"],
+  });
+
+  // Desktop: the section is 220svh tall and the stage is sticky,
+  // so the pill has 0 to 0.45 of progress to grow to full screen.
+  const grow = useTransform(p, [0.02, 0.4], [0, 1], { clamp: true });
+  const expX = useTransform(grow, (g) => pill.x * (1 - g));
+  const expY = useTransform(grow, (g) => pill.y * (1 - g));
+  const expW = useTransform(grow, (g) => pill.w + (stage.w - pill.w) * g);
+  const expH = useTransform(grow, (g) => pill.h + (stage.h - pill.h) * g);
+  const expR = useTransform(grow, (g) => (pill.h / 2) * (1 - g));
+  // Opacity values are written as functions on purpose: Framer Motion
+  // hands simple opacity ranges to the browser's native scroll timeline,
+  // which doesn't account for the sticky stage and fires at the wrong time.
+  const expShow = useTransform(p, (v) => Math.min(v / 0.02, 1));
+  const expCaption = useTransform(grow, (g) => Math.max((g - 0.8) / 0.2, 0));
+  const expPointer = useTransform(grow, (g) => (g > 0.8 ? "auto" : "none"));
+
+  // Headline lifts away. Ranges differ because the phone hero is not pinned.
+  const headOpacity = useTransform(p, (v) =>
+    isDesktop
+      ? Math.max(1 - v / 0.25, 0)
+      : Math.max(1 - (v / 0.35) * 0.85, 0.15),
+  );
+  const headY = useTransform(p, [0, 0.4], [0, isDesktop ? -80 : 0]);
+
+  // Phone: the card grows until it runs edge to edge.
+  const cardScale = useTransform(p, [0, 0.35], [1, cardGrow], { clamp: true });
+  const cardRadius = useTransform(p, [0, 0.35], [20, 0], { clamp: true });
+
   // When the headline starts revealing (seconds after page load)
   const T0 = reduceMotion ? 0 : 1.0;
 
@@ -91,8 +207,42 @@ export default function Hero() {
     return () => ro.disconnect();
   }, [active]);
 
+  // Measure where the pill and card sit, so the scroll moment starts
+  // exactly from them. Re-measured after the reveal and on every resize.
+  useEffect(() => {
+    const measure = () => {
+      const desktop = window.matchMedia("(min-width: 1024px)").matches;
+      setIsDesktop(desktop);
+      const st = stageRef.current;
+      if (!st) return;
+      const s = st.getBoundingClientRect();
+      setStage({ w: s.width, h: s.height });
+      if (pillRef.current) {
+        const r = pillRef.current.getBoundingClientRect();
+        setPill({ x: r.left - s.left, y: r.top - s.top, w: r.width, h: r.height });
+      }
+      if (cardRef.current) {
+        setCardGrow(window.innerWidth / cardRef.current.offsetWidth);
+      }
+    };
+    const t = setTimeout(measure, (T0 + 1) * 1000);
+    window.addEventListener("resize", measure);
+    document.fonts?.ready.then(measure);
+    return () => {
+      clearTimeout(t);
+      window.removeEventListener("resize", measure);
+    };
+  }, [T0]);
+
   return (
-    <section className="relative isolate min-h-[100svh] w-full overflow-hidden bg-background">
+    <section
+      ref={sectionRef}
+      className={`relative isolate w-full bg-background ${reduceMotion ? "" : "lg:h-[220svh]"}`}
+    >
+      <div
+        ref={stageRef}
+        className="relative min-h-[100svh] w-full overflow-hidden lg:sticky lg:top-0 lg:h-[100svh]"
+      >
       {/* Background: Threads (skipped entirely for reduced-motion users) */}
       {!reduceMotion && (
         <div className="absolute inset-0 z-0 opacity-70">
@@ -139,8 +289,23 @@ export default function Hero() {
 
       {/* Content layer. pointer-events-none lets the mouse reach Threads
           underneath; interactive children switch pointer events back on. */}
-      <div className="pointer-events-none relative z-10 container mx-auto flex min-h-[100svh] w-full flex-col px-7 pb-10 pt-[150px] sm:px-8 md:px-12 lg:pb-16 lg:pt-40">
-        {/* STEP 4: meta row goes here */}
+      <div className="pointer-events-none relative z-10 container mx-auto flex min-h-[100svh] w-full flex-col px-7 pb-[84px] pt-[92px] sm:px-8 md:px-12 lg:pb-[104px] lg:pt-28">
+        <motion.div style={{ opacity: headOpacity, y: headY }}>
+        {/* Meta row */}
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.6, delay: T0 + 0.3 }}
+          className="mb-4 flex items-center justify-between border-t border-white/10 pt-3 font-sans text-xs text-muted-foreground lg:mb-10 lg:text-[13px]"
+        >
+          <span className="hidden lg:inline">Design and development studio</span>
+          <span className="flex items-center gap-2 rounded-full border border-white/15 px-3 py-1.5">
+            <span className="h-[7px] w-[7px] rounded-full bg-primary" />
+            {AVAILABILITY}
+          </span>
+          <IndiaTime />
+        </motion.div>
+
 
         <h1
           ref={headRef}
@@ -150,7 +315,7 @@ export default function Hero() {
               setActive((a) => (a + 1) % LINES.length);
             }
           }}
-          className="relative m-0 font-display text-[clamp(48px,15.4vw,60px)] font-medium leading-[0.95] tracking-[-0.04em] text-white lg:text-[clamp(96px,10vw,176px)]"
+          className="relative m-0 font-display text-[clamp(48px,15.4vw,60px)] font-medium leading-[0.95] tracking-[-0.04em] text-white lg:text-[clamp(80px,min(10vw,16svh),176px)]"
         >
           {LINES.map((line, i) => (
             <span key={line.text} className={`block ${line.className}`}>
@@ -170,6 +335,15 @@ export default function Hero() {
                   transition={{ duration: 0.8, delay: T0 + i * 0.12, ease: EASE }}
                 >
                   {line.text}
+                  {i === 0 && (
+                    <span
+                      ref={pillRef}
+                      onClick={() => scrollToSection("#work")}
+                      className="interactive ml-[0.22em] hidden h-[0.72em] w-[1.9em] overflow-hidden rounded-full bg-[#15213a] align-[-0.02em] lg:inline-block"
+                    >
+                      <ReelMedia />
+                    </span>
+                  )}
                 </motion.span>
               </span>
             </span>
@@ -198,10 +372,29 @@ export default function Hero() {
             </span>
           </motion.span>
         </h1>
+        </motion.div>
 
-        {/* STEP 5: showreel window goes here */}
+        {/* Phone showreel card */}
+        <motion.button
+          ref={cardRef}
+          type="button"
+          onClick={() => scrollToSection("#work")}
+          initial={{ opacity: 0, y: reduceMotion ? 0 : 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: T0 + 0.4 }}
+          style={reduceMotion ? { borderRadius: 20 } : { scale: cardScale, borderRadius: cardRadius }}
+          className="interactive pointer-events-auto relative mt-8 block aspect-video w-full overflow-hidden border border-white/10 bg-[#15213a] text-left [@media(max-height:700px)]:aspect-[21/9] lg:hidden"
+        >
+          <ReelMedia />
+          <span className="absolute inset-x-0 bottom-0 flex items-end justify-between bg-gradient-to-t from-black/75 to-transparent px-3.5 pb-3 pt-10 font-sans">
+            <span className="text-xs text-white/90">{REEL.caption}</span>
+            <span className="flex h-[34px] w-[34px] items-center justify-center rounded-full bg-black/70">
+              <ArrowUpRight className="h-4 w-4 text-white" />
+            </span>
+          </span>
+        </motion.button>
 
-        <div className="mt-12 flex flex-col gap-8 lg:mt-auto lg:flex-row-reverse lg:items-end lg:justify-between">
+        <div className="mt-6 flex flex-col gap-6 lg:mt-auto lg:flex-row-reverse lg:items-end lg:justify-between">
           <motion.p
             initial={{ opacity: 0, y: reduceMotion ? 0 : 16 }}
             animate={{ opacity: 1, y: 0 }}
@@ -237,8 +430,64 @@ export default function Hero() {
             </button>
           </motion.div>
         </div>
+      </div>
 
-        {/* STEP 4: services ticker goes here */}
+      {/* Services ticker, pinned to the bottom edge. It reuses the
+          animate-marquee-left keyframes already in your index.css. */}
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.6, delay: T0 + 0.7 }}
+        className="absolute inset-x-0 bottom-0 z-10 flex h-[52px] items-center overflow-hidden border-t border-white/10 lg:h-16"
+      >
+        <div className="flex w-max animate-marquee-left motion-reduce:animate-none">
+          {[0, 1].map((copy) => (
+            <span
+              key={copy}
+              aria-hidden={copy === 1}
+              className="flex shrink-0 items-center whitespace-nowrap font-sans text-[13px] text-muted-foreground lg:text-sm"
+            >
+              {SERVICES.map((service) => (
+                <span key={service} className="flex items-center">
+                  <span className="px-5 lg:px-8">{service}</span>
+                  <span className="text-white/20">/</span>
+                </span>
+              ))}
+            </span>
+          ))}
+        </div>
+      </motion.div>
+
+      {/* Desktop scroll moment: grows from the pill to full screen */}
+      {!reduceMotion && isDesktop && pill.w > 0 && (
+        <motion.div
+          style={{
+            x: expX,
+            y: expY,
+            width: expW,
+            height: expH,
+            borderRadius: expR,
+            opacity: expShow,
+            pointerEvents: expPointer,
+          }}
+          className="absolute left-0 top-0 z-20 overflow-hidden bg-[#15213a]"
+        >
+          <ReelMedia />
+          <motion.div
+            style={{ opacity: expCaption }}
+            className="absolute inset-x-0 bottom-0 flex items-end justify-between bg-gradient-to-t from-black/70 to-transparent px-12 pb-10 pt-24 font-sans"
+          >
+            <span className="text-base text-white/90">{REEL.caption}</span>
+            <button
+              type="button"
+              onClick={() => scrollToSection("#work")}
+              className="interactive flex h-11 items-center gap-2 rounded-full bg-white px-5 text-sm font-medium text-black"
+            >
+              View case <ArrowUpRight className="h-4 w-4" />
+            </button>
+          </motion.div>
+        </motion.div>
+      )}
       </div>
     </section>
   );
