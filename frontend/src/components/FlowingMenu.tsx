@@ -1,6 +1,26 @@
 import React, { useRef, useEffect, useState } from 'react';
 import { gsap } from 'gsap';
 
+// Added for Veltix: remember where the mouse is, so rows can react when the
+// page scrolls under a cursor that isn't moving. Browsers don't fire
+// mouseenter in that case; they only fire it when the mouse itself moves.
+const pointer = { x: -1, y: -1 };
+if (typeof window !== 'undefined') {
+  window.addEventListener(
+    'pointermove',
+    e => {
+      if (e.pointerType !== 'mouse') return;
+      pointer.x = e.clientX;
+      pointer.y = e.clientY;
+    },
+    { passive: true }
+  );
+  document.addEventListener('mouseleave', () => {
+    pointer.x = -1;
+    pointer.y = -1;
+  });
+}
+
 interface MenuItemData {
   link: string;
   text: string;
@@ -142,12 +162,15 @@ const MenuItem: React.FC<MenuItemProps> = ({
     };
   }, [text, image, repetitions, speed]);
 
-  const handleMouseEnter = (ev: React.MouseEvent<HTMLAnchorElement>) => {
-    onHover?.(index);
-    if (!itemRef.current || !marqueeRef.current || !marqueeInnerRef.current) return;
-    const rect = itemRef.current.getBoundingClientRect();
-    const edge = findClosestEdge(ev.clientX - rect.left, ev.clientY - rect.top, rect.width, rect.height);
+  // Added for Veltix: whether the band is currently showing, so a scroll
+  // and a real mouse move can't both play the same animation.
+  const activeRef = useRef(false);
 
+  const animateIn = (edge: 'top' | 'bottom') => {
+    if (activeRef.current) return;
+    activeRef.current = true;
+    onHover?.(index);
+    if (!marqueeRef.current || !marqueeInnerRef.current) return;
     gsap
       .timeline({ defaults: animationDefaults })
       .set(marqueeRef.current, { y: edge === 'top' ? '-101%' : '101%' }, 0)
@@ -155,16 +178,51 @@ const MenuItem: React.FC<MenuItemProps> = ({
       .to([marqueeRef.current, marqueeInnerRef.current], { y: '0%' }, 0);
   };
 
-  const handleMouseLeave = (ev: React.MouseEvent<HTMLAnchorElement>) => {
-    if (!itemRef.current || !marqueeRef.current || !marqueeInnerRef.current) return;
-    const rect = itemRef.current.getBoundingClientRect();
-    const edge = findClosestEdge(ev.clientX - rect.left, ev.clientY - rect.top, rect.width, rect.height);
-
+  const animateOut = (edge: 'top' | 'bottom') => {
+    if (!activeRef.current) return;
+    activeRef.current = false;
+    if (!marqueeRef.current || !marqueeInnerRef.current) return;
     gsap
       .timeline({ defaults: animationDefaults })
       .to(marqueeRef.current, { y: edge === 'top' ? '-101%' : '101%' }, 0)
       .to(marqueeInnerRef.current, { y: edge === 'top' ? '101%' : '-101%' }, 0);
   };
+
+  const edgeFor = (clientX: number, clientY: number) => {
+    const rect = itemRef.current!.getBoundingClientRect();
+    return findClosestEdge(clientX - rect.left, clientY - rect.top, rect.width, rect.height);
+  };
+
+  const handleMouseEnter = (ev: React.MouseEvent<HTMLAnchorElement>) => {
+    if (!itemRef.current) return;
+    animateIn(edgeFor(ev.clientX, ev.clientY));
+  };
+
+  const handleMouseLeave = (ev: React.MouseEvent<HTMLAnchorElement>) => {
+    if (!itemRef.current) return;
+    animateOut(edgeFor(ev.clientX, ev.clientY));
+  };
+
+  // Added for Veltix: on every scroll, check whether the row is now under
+  // the (still) cursor. Scrolling down moves rows up, so the cursor enters
+  // a row through its top edge and leaves through its bottom edge, and the
+  // other way round when scrolling up.
+  useEffect(() => {
+    let lastY = window.scrollY;
+    const onScroll = () => {
+      const y = window.scrollY;
+      const down = y >= lastY;
+      lastY = y;
+      if (!itemRef.current || pointer.x < 0) return;
+      const r = itemRef.current.getBoundingClientRect();
+      const inside = pointer.x >= r.left && pointer.x <= r.right && pointer.y >= r.top && pointer.y <= r.bottom;
+      if (inside) animateIn(down ? 'top' : 'bottom');
+      else animateOut(down ? 'bottom' : 'top');
+    };
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return (
     <div
