@@ -23,6 +23,8 @@ export interface PillNavProps {
   hoveredPillTextColor?: string;
   pillTextColor?: string;
   initialLoadAnimation?: boolean;
+  // Added for Veltix: wait for the preloader before the intro plays
+  initialDelay?: number;
   // Added for Veltix: let the navbar handle clicks (smooth scroll)
   onItemClick?: (href: string, e: React.MouseEvent<HTMLAnchorElement>) => void;
   onLogoClick?: (e: React.MouseEvent<HTMLAnchorElement>) => void;
@@ -40,6 +42,7 @@ const PillNav: React.FC<PillNavProps> = ({
   hoveredPillTextColor = '#120F17',
   pillTextColor,
   initialLoadAnimation = true,
+  initialDelay = 0,
   onItemClick,
   onLogoClick
 }) => {
@@ -119,17 +122,17 @@ const PillNav: React.FC<PillNavProps> = ({
 
       if (logo) {
         gsap.set(logo, { scale: 0 });
-        gsap.to(logo, { scale: 1, duration: 0.6, ease });
+        gsap.to(logo, { scale: 1, duration: 0.6, ease, delay: initialDelay });
       }
 
       if (navItems) {
         gsap.set(navItems, { width: 0, overflow: 'hidden' });
-        gsap.to(navItems, { width: 'auto', duration: 0.6, ease });
+        gsap.to(navItems, { width: 'auto', duration: 0.6, ease, delay: initialDelay + 0.1 });
       }
     }
 
     return () => window.removeEventListener('resize', onResize);
-  }, [items, ease, initialLoadAnimation]);
+  }, [items, ease, initialLoadAnimation, initialDelay]);
 
   const handleEnter = (i: number) => {
     const tl = tlRefs.current[i];

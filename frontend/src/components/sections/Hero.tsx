@@ -8,6 +8,7 @@ import {
 } from "framer-motion";
 import { ArrowUpRight } from "lucide-react";
 import Threads from "@/components/Threads";
+import { HERO_START } from "@/components/Preloader";
 import { scrollToSection } from "@/lib/smoothscroll";
 
 // One easing curve for the whole hero, the same one the old loader used.
@@ -120,7 +121,9 @@ const MagnetButton = ({ children, className, ...props }: any) => {
 
 export default function Hero() {
   const reduceMotion = useReducedMotion();
-  const [showLoader, setShowLoader] = useState(!reduceMotion);
+  // Threads (WebGL) starts once the preloader has gone, so the two
+  // don't fight for the processor during the intro.
+  const [showThreads, setShowThreads] = useState(false);
   const [finePointer, setFinePointer] = useState(false);
 
   // Selection frame state
@@ -188,17 +191,17 @@ export default function Hero() {
   const cardRadius = useTransform(p, [0, 0.35], [20, 0], { clamp: true });
 
   // When the headline starts revealing (seconds after page load)
-  const T0 = reduceMotion ? 0 : 1.0;
+    const T0 = reduceMotion ? 0 : HERO_START;
 
   useEffect(() => {
     setFinePointer(window.matchMedia("(pointer: fine)").matches);
-    const loaderTimer = setTimeout(() => setShowLoader(false), 1500);
+    const threadsTimer = setTimeout(() => setShowThreads(true), (T0 ? T0 + 0.9 : 0) * 1000);
     const frameTimer = setTimeout(
       () => setShowFrame(true),
       (T0 + 0.9) * 1000,
     );
     return () => {
-      clearTimeout(loaderTimer);
+      clearTimeout(threadsTimer);
       clearTimeout(frameTimer);
     };
   }, [T0]);
@@ -257,21 +260,26 @@ export default function Hero() {
         className="relative min-h-[100svh] w-full overflow-hidden lg:sticky lg:top-0 lg:h-[100svh]"
       >
       {/* Background: Threads (skipped entirely for reduced-motion users) */}
-      {!reduceMotion && (
-        <div className="absolute inset-0 z-0 opacity-70">
+      {!reduceMotion && showThreads && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 0.7 }}
+          transition={{ duration: 1.2 }}
+          className="absolute inset-0 z-0"
+        >
           <Threads
             color={THREADS_COLOR}
             amplitude={1}
             distance={0}
-                       enableMouseInteraction={finePointer}
+            enableMouseInteraction={finePointer}
             paused={threadsPaused}
           />
-        </div>
+        </motion.div>
       )}
       {/* Soft fade so the threads don't cut off hard at the section edge */}
       <div className="pointer-events-none absolute inset-x-0 bottom-0 z-[1] h-40 bg-gradient-to-b from-transparent to-background" />
 
-      {/* Loader: 1.2s, then slides away */}
+            {/* Content layer. pointer-events-none lets the mouse reach Threads
       {showLoader && (
         <motion.div
           initial={{ y: 0 }}

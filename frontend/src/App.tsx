@@ -22,13 +22,16 @@ import FAQ from '@/components/sections/FAQ';
 import Contact from '@/components/sections/Contact';
 import Footer from '@/components/sections/Footer';
 import Navbar from '@/components/NavbarPill';
+import Preloader from '@/components/Preloader';
 
 const queryClient = new QueryClient();
 
 function Home() {
   return (
         <div className="relative w-full overflow-x-clip bg-background">
+      <Preloader />
       <Cursor />
+
       <Navbar />
       <main>
         <Hero />

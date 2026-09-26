@@ -2,6 +2,7 @@ import { useEffect, useState, type MouseEvent } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { ArrowUpRight, Check, Copy } from "lucide-react";
 import PillNav from "@/components/PillNav";
+import { HERO_START } from "@/components/Preloader";
 import { scrollToSection } from "@/lib/smoothscroll";
 import { AGENCY_EMAIL, AVAILABILITY } from "@/lib/site";
 
@@ -195,7 +196,12 @@ export default function NavbarPill() {
       {/* ------------------------------------------------------------------
           DESKTOP: wordmark, React Bits pill nav in the middle, CTA pill
          ------------------------------------------------------------------ */}
-      <header className="pointer-events-none fixed inset-x-0 top-0 z-[100] hidden lg:block">
+      <motion.header
+        initial={reduceMotion ? false : { opacity: 0, y: -16 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.7, delay: reduceMotion ? 0 : HERO_START - 0.2, ease: EASE }}
+        className="pointer-events-none fixed inset-x-0 top-0 z-[100] hidden lg:block"
+      >
         <div className="container mx-auto grid h-24 grid-cols-[1fr_auto_1fr] items-center px-12">
           {/* Wordmark: shown at the top, fades once the page moves
               (the logo circle in the pill nav stays) */}
@@ -222,6 +228,7 @@ export default function NavbarPill() {
               pillTextColor="#ffffff"
               hoveredPillTextColor="#ffffff"
               initialLoadAnimation={!reduceMotion}
+              initialDelay={HERO_START - 0.2}
               onItemClick={(href, e) => go(href)(e)}
               onLogoClick={toTop}
             />
@@ -237,7 +244,7 @@ export default function NavbarPill() {
             <ArrowUpRight className="relative h-4 w-4 transition-transform duration-500 group-hover:rotate-45" />
           </a>
         </div>
-      </header>
+      </motion.header>
 
       {/* ------------------------------------------------------------------
           PHONE: logo circle + a chip showing where you are + dots button
@@ -245,7 +252,7 @@ export default function NavbarPill() {
       <motion.header
         initial={reduceMotion ? false : { y: -30, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
-        transition={{ duration: 0.6, ease: EASE }}
+        transition={{ duration: 0.6, delay: reduceMotion ? 0 : HERO_START - 0.2, ease: EASE }}
         className="fixed inset-x-3 top-3 z-[110] flex items-center justify-between lg:hidden"
       >
         <a href="#top" onClick={toTop} aria-label="Veltix, back to top" className="flex items-center gap-2">
