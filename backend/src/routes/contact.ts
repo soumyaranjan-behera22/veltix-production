@@ -5,8 +5,8 @@ import { logger } from "../lib/logger";
 
 const router: IRouter = Router();
 
-// const FROM = "Veltix Agency<team@veltix.in>"; // change to a verified domain sender in production
-const FROM = "Veltix Agency<veltixagency@gmail.com>"; // change to a verified domain sender in production
+const FROM = "Veltix Agency<team@veltix.in>"; // change to a verified domain sender in production
+// const FROM = "Veltix Agency<veltixagency@gmail.com>"; // change to a verified domain sender in production
 const ADMIN = "veltixagency@gmail.com";
 const resend = new Resend(process.env.RESEND_API_KEY);
 
