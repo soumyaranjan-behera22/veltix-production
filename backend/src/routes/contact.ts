@@ -120,15 +120,12 @@ function autoReplyHtml(p: ContactPayload): string {
 <tr>
   <td style="background:linear-gradient(135deg,#0a1628 0%,#0d1f3c 50%,#111827 100%);padding:48px 40px;text-align:center;border-bottom:1px solid #1e3a5f;">
 
-    <div style="width:64px;height:64px;margin:0 auto 20px;text-align:center;">
-      <img
-        src="/veltix-main-logo.png"
-        alt="Veltix Agency"
-        width="64"
-        height="64"
-        style="display:block;width:64px;height:64px;object-fit:contain;border:0;"
-      />
-    </div>
+    <img
+      src="https://veltix.in/veltix-main-logo.png"
+      alt="Veltix Agency"
+      width="64"
+      style="display:block;width:64px;height:auto;margin:0 auto 20px;border:0;outline:none;text-decoration:none;"
+    />
 
     <div style="font-size:28px;font-weight:900;color:#fff;letter-spacing:-1px;">
       VELTIX
@@ -144,7 +141,7 @@ function autoReplyHtml(p: ContactPayload): string {
   <!-- Body -->
   <tr><td style="padding:48px 40px;">
     <h2 style="margin:0 0 20px;font-size:22px;font-weight:700;color:#fff;">Hi ${p.name},</h2>
-    <p style="margin:0 0 16px;color:#d1d5db;font-size:16px;line-height:1.7;">Thank you f contacting <strong style="color:#4F8CFF;">VELTIX</strong>.</p>
+    <p style="margin:0 0 16px;color:#d1d5db;font-size:16px;line-height:1.7;">Thank you for contacting <strong style="color:#4F8CFF;">VELTIX</strong>.</p>
     <p style="margin:0 0 16px;color:#d1d5db;font-size:16px;line-height:1.7;">We've successfully received your project inquiry.</p>
     <p style="margin:0 0 28px;color:#d1d5db;font-size:16px;line-height:1.7;">Our team will carefully review your requirements. We'll contact you within the next <strong style="color:#4F8CFF;">4 hours</strong> to discuss:</p>
 
