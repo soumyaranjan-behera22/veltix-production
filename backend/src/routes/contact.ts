@@ -144,7 +144,7 @@ function autoReplyHtml(p: ContactPayload): string {
   <!-- Body -->
   <tr><td style="padding:48px 40px;">
     <h2 style="margin:0 0 20px;font-size:22px;font-weight:700;color:#fff;">Hi ${p.name},</h2>
-    <p style="margin:0 0 16px;color:#d1d5db;font-size:16px;line-height:1.7;">Thank you for contacting <strong style="color:#4F8CFF;">VELTIX</strong>.</p>
+    <p style="margin:0 0 16px;color:#d1d5db;font-size:16px;line-height:1.7;">Thank you f contacting <strong style="color:#4F8CFF;">VELTIX</strong>.</p>
     <p style="margin:0 0 16px;color:#d1d5db;font-size:16px;line-height:1.7;">We've successfully received your project inquiry.</p>
     <p style="margin:0 0 28px;color:#d1d5db;font-size:16px;line-height:1.7;">Our team will carefully review your requirements. We'll contact you within the next <strong style="color:#4F8CFF;">4 hours</strong> to discuss:</p>
 
