@@ -46,7 +46,7 @@ function adminHtml(p: ContactPayload, submittedAt: string): string {
     <table width="100%" cellpadding="0" cellspacing="0"><tr>
       <td>
          <img
-    src="/veltix-main-logo.png"
+      src="https://www.veltix.in/veltix-main-logo.png"
     alt="Veltix Agency"
     width="120"
     style="display:block;width:120px;height:auto;border:0;"
@@ -121,7 +121,7 @@ function autoReplyHtml(p: ContactPayload): string {
   <td style="background:linear-gradient(135deg,#0a1628 0%,#0d1f3c 50%,#111827 100%);padding:48px 40px;text-align:center;border-bottom:1px solid #1e3a5f;">
 
     <img
-      src="https://veltix.in/veltix-main-logo.png"
+      src="https://www.veltix.in/veltix-main-logo.png"
       alt="Veltix Agency"
       width="64"
       style="display:block;width:64px;height:auto;margin:0 auto 20px;border:0;outline:none;text-decoration:none;"
