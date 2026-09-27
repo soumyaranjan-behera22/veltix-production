@@ -225,7 +225,7 @@ const start = Date.now();
     resend.emails.send({
       from: FROM,
       to: email,
-      replyTo: "pinkibehera671@gmail.com",
+      replyTo: "veltixagency@gmail.com",
       subject: "✨ Thanks for contacting VELTIX",
       html: autoReplyHtml({
         name,
