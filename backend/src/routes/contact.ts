@@ -45,8 +45,16 @@ function adminHtml(p: ContactPayload, submittedAt: string): string {
   <tr><td style="background:linear-gradient(135deg,#0a1628 0%,#0d1f3c 50%,#111827 100%);padding:36px 40px;border-bottom:1px solid #1e3a5f;">
     <table width="100%" cellpadding="0" cellspacing="0"><tr>
       <td>
-        <div style="font-size:26px;font-weight:900;color:#4F8CFF;letter-spacing:-1px;">VELTIX</div>
-        <div style="margin-top:4px;font-size:11px;color:#6b7280;letter-spacing:3px;text-transform:uppercase;">New Project Inquiry</div>
+         <img
+    src="https://veltix.in/veltix-main-logo.png"
+    alt="Veltix Agency"
+    width="120"
+    style="display:block;width:120px;height:auto;border:0;"
+  />
+
+  <div style="margin-top:8px;font-size:11px;color:#6b7280;letter-spacing:3px;text-transform:uppercase;">
+    New Project Inquiry
+  </div>
       </td>
       <td align="right">
         <span style="background:#4F8CFF;color:#000;font-size:10px;font-weight:800;padding:7px 16px;border-radius:20px;letter-spacing:1px;text-transform:uppercase;">Inbound Lead 🚀</span>
@@ -108,11 +116,30 @@ function autoReplyHtml(p: ContactPayload): string {
 <table width="600" cellpadding="0" cellspacing="0" style="max-width:600px;width:100%;background:#111;border-radius:16px;overflow:hidden;border:1px solid #1a1a1a;">
 
   <!-- Header -->
-  <tr><td style="background:linear-gradient(135deg,#0a1628 0%,#0d1f3c 50%,#111827 100%);padding:48px 40px;text-align:center;border-bottom:1px solid #1e3a5f;">
-    <div style="width:64px;height:64px;background:#4F8CFF;border-radius:16px;margin:0 auto 20px;line-height:64px;text-align:center;font-size:30px;font-weight:900;color:#fff;">V</div>
-    <div style="font-size:28px;font-weight:900;color:#fff;letter-spacing:-1px;">VELTIX</div>
-    <div style="margin-top:6px;color:#4F8CFF;font-size:12px;letter-spacing:3px;text-transform:uppercase;">We Build Websites That Win.</div>
-  </td></tr>
+ <!-- Header -->
+<tr>
+  <td style="background:linear-gradient(135deg,#0a1628 0%,#0d1f3c 50%,#111827 100%);padding:48px 40px;text-align:center;border-bottom:1px solid #1e3a5f;">
+
+    <div style="width:64px;height:64px;margin:0 auto 20px;text-align:center;">
+      <img
+        src="https://veltix.in/veltix-main-logo.png"
+        alt="Veltix Agency"
+        width="64"
+        height="64"
+        style="display:block;width:64px;height:64px;object-fit:contain;border:0;"
+      />
+    </div>
+
+    <div style="font-size:28px;font-weight:900;color:#fff;letter-spacing:-1px;">
+      VELTIX
+    </div>
+
+    <div style="margin-top:6px;color:#4F8CFF;font-size:12px;letter-spacing:3px;text-transform:uppercase;">
+      We Build Websites That Win.
+    </div>
+
+  </td>
+</tr>
 
   <!-- Body -->
   <tr><td style="padding:48px 40px;">
