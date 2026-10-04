@@ -444,6 +444,9 @@ html{scroll-behavior:smooth}
     <textarea class="copybox" id="copybox" hidden aria-label="Message to copy"></textarea>
     <section class="reqpanel" id="reqPanel" hidden>
       <div class="req-head"><b>Request a payment</b><span id="reqSub"></span></div>
+      <label class="f" style="margin-bottom:10px"><span>Pay to (your UPI ID)</span><input type="text" id="req-upi" list="upiList" autocomplete="off" spellcheck="false" placeholder="yourname@okaxis"></label>
+      <datalist id="upiList"></datalist>
+      <p class="hint" id="upiHint" style="margin:-4px 0 10px">The client pays this UPI ID. Change it any time; links you already sent keep working.</p>
       <div class="grid2">
         <label class="f"><span>Amount (₹)</span><input type="number" min="1" id="req-amt"></label>
         <label class="f"><span>For</span><input type="text" id="req-lbl"></label>
@@ -1084,17 +1087,43 @@ function updateLink(){const l=payLink();document.getElementById("req-link").valu
 const reqPanel=document.getElementById("reqPanel");
 document.getElementById("reqBtn").onclick=()=>{
   if(!reqPanel.hidden){reqPanel.hidden=true;document.getElementById("reqBtn").setAttribute("aria-expanded","false");return}
-  if(!(S.agency.upi||"").includes("@")){toast("Add your UPI ID first. It's on your QR or in your UPI app.");goToField("a-upi","settings");return}
   const n=nextRequest();
   if(n.amt<=0){toast("Nothing is due on this deal");return}
   document.getElementById("req-amt").value=n.amt;document.getElementById("req-lbl").value=n.lbl;
   document.getElementById("reqSub").textContent=isLocal?"Test mode: links open only on this computer. Use Preview.":`${S.doc.invoiceNo} · balance ${fmt(calc().balance)}`;
+  fillUpiField();
   reqPanel.hidden=false;document.getElementById("reqBtn").setAttribute("aria-expanded","true");updateLink();
   reqPanel.scrollIntoView({behavior:"smooth",block:"nearest"});
+  if(!upiOk()){toast("Add your UPI ID first. It's on your QR or in your UPI app.");const f=document.getElementById("req-upi"),L=f.closest("label");f.focus();L.classList.add("flash");setTimeout(()=>L.classList.remove("flash"),1600)}
 };
+/* UPI ID right inside the payment panel: always visible, editable, remembered */
+const UPI_RE=/^[a-z0-9._-]{2,}@[a-z0-9.-]{2,}$/i;
+function upiOk(){return UPI_RE.test(String(S.agency.upi||"").trim())}
+function fillUpiField(){
+  const f=document.getElementById("req-upi");f.value=S.agency.upi||"";
+  const hist=(Array.isArray(AGENCY.upiHistory)?AGENCY.upiHistory:[]).slice().reverse();
+  document.getElementById("upiList").innerHTML=hist.map(u=>`<option value="${esc(u)}"></option>`).join("");
+  showUpiState();
+}
+function showUpiState(){
+  const v=document.getElementById("req-upi").value.trim(),h=document.getElementById("upiHint");
+  const bad=v&&!UPI_RE.test(v);
+  h.textContent=!v?"Type the UPI ID you want this payment to go to.":bad?"That doesn't look like a UPI ID. It should look like name@okaxis.":"The client pays this UPI ID. Change it any time; links you already sent keep working.";
+  h.style.color=(!v||bad)?"var(--amber,#e0a84a)":"";
+}
+document.getElementById("req-upi").addEventListener("input",e=>{
+  AGENCY.upi=e.target.value.trim();S.agency=AGENCY;
+  const s=document.getElementById("a-upi");if(s)s.value=AGENCY.upi;
+  store("veltix-agency",AGENCY);showUpiState();updateLink();
+});
+// save to your account once you finish typing (so half-typed IDs aren't remembered)
+document.getElementById("req-upi").addEventListener("change",()=>{if(upiOk()){queueSettingsSave();fillUpiField();refresh()}});
+document.getElementById("reqOpen").addEventListener("click",e=>{if(needUpi())e.preventDefault()});
+function needUpi(){if(upiOk())return false;toast("Add a valid UPI ID first");document.getElementById("req-upi").focus();return true}
 ["req-amt","req-lbl"].forEach(id=>document.getElementById(id).addEventListener("input",updateLink));
-document.getElementById("reqCopy").onclick=async()=>{const l=payLink();try{await navigator.clipboard.writeText(l);toast("Link copied")}catch(e){const i=document.getElementById("req-link");i.select();toast("Select and copy the link")}};
+document.getElementById("reqCopy").onclick=async()=>{if(needUpi())return;const l=payLink();try{await navigator.clipboard.writeText(l);toast("Link copied")}catch(e){const i=document.getElementById("req-link");i.select();toast("Select and copy the link")}};
 document.getElementById("reqWa").onclick=()=>{
+  if(needUpi())return;
   const amt=num(document.getElementById("req-amt").value);
   if(amt<=0){toast("Enter an amount");return}
   if(isLocal){toast("You're testing on this computer, so the link wouldn't open for your client. Use Preview to check it. Real links send from veltix.in/desk once the site is live.");return}
