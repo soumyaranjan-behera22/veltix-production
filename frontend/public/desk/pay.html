@@ -180,7 +180,14 @@ button,.btn,.copy,.app{-webkit-tap-highlight-color:transparent;-webkit-user-sele
 .stamp{width:112px;height:112px;border:2.5px solid var(--stamp);border-radius:50%;display:grid;place-items:center;transform:rotate(-12deg);color:var(--stamp);font-family:var(--f-mono);font-weight:500;font-size:13px;letter-spacing:.12em;text-align:center;line-height:1.25;flex:none}
 .foot{font-family:var(--f-mono);font-size:11px;color:var(--ink-soft);margin-top:18px;padding-top:12px;border-top:1px dashed var(--rule)}
 .note{color:var(--muted);font-size:12.5px;text-align:center;margin:24px auto 0;max-width:34ch}
-.toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:rgba(23,26,31,.94);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);color:var(--text);border:1px solid var(--line-2);box-shadow:0 18px 40px rgba(0,0,0,.5);padding:11px 16px;border-radius:12px;font-size:14px;z-index:9;animation:up .25s ease both;max-width:calc(100% - 32px)}
+.toast{position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);width:max-content;max-width:min(380px,calc(100% - 32px));display:grid;gap:3px;
+  background:#F1EDE5;color:#151515;border-radius:14px;padding:13px 18px 14px;font-size:14px;line-height:1.45;text-align:left;z-index:50;-webkit-user-select:none;user-select:none;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.75),0 0 0 1px rgba(0,0,0,.4),0 20px 44px -14px rgba(0,0,0,.8)}
+.toast b{font-family:var(--f-display);font-weight:600;font-size:14.5px;letter-spacing:-.01em}
+.toast span{color:#5F5B54;font-size:13.5px}
+.toast.out{animation:toastOut .22s ease both!important}
+@keyframes toastOut{to{opacity:0;transform:translate(-50%,6px)}}
+.toast{animation:up .25s ease both}
 .choose{margin-top:10px}
 .tiny2{font-size:12.5px!important;margin-top:10px!important}
 .applist{display:grid;gap:8px;margin-top:10px}
@@ -274,7 +281,14 @@ const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&
 const fmt=n=>"₹"+Math.round(n).toLocaleString("en-IN");
 const nice=s=>{if(!s)return "—";const t=new Date(s+"T00:00:00");return isNaN(t)?s:t.toLocaleDateString("en-IN",{day:"numeric",month:"short",year:"numeric"})};
 const TICK='<svg viewBox="0 0 14 14" fill="none"><path d="M2.5 7.4l3 2.9 6-6.3" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
-function toast(t){const el=document.createElement("div");el.className="toast";el.textContent=t;document.body.appendChild(el);setTimeout(()=>el.remove(),2600)}
+function toast(t,sub){
+  document.querySelectorAll(".toast").forEach(x=>x.remove());
+  const el=document.createElement("div");el.className="toast";el.setAttribute("role","status");
+  if(sub){const b=document.createElement("b");b.textContent=t;const s=document.createElement("span");s.textContent=sub;el.append(b,s)}else el.textContent=t;
+  document.body.appendChild(el);
+  const ms=Math.min(6500,2400+((t+(sub||"")).length*35));
+  setTimeout(()=>{el.classList.add("out");setTimeout(()=>el.remove(),230)},ms);
+}
 function store(k,v){try{if(v===undefined){const s=localStorage.getItem(k);return s?JSON.parse(s):null}localStorage.setItem(k,JSON.stringify(v))}catch(e){return null}}
 function copyNow(t){
   try{const ta=document.createElement("textarea");ta.value=t;ta.setAttribute("readonly","");ta.style.cssText="position:fixed;opacity:0;top:0;left:0";document.body.appendChild(ta);ta.select();ta.setSelectionRange(0,t.length);document.execCommand("copy");ta.remove()}catch(e){}

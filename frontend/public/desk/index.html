@@ -151,8 +151,13 @@ input[type=checkbox]{width:16px;height:16px;accent-color:var(--blue)}
 .req-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
 .deals{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
 .deals select{width:auto;flex:1;min-width:140px}
-.toast{position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:rgba(23,26,31,.92);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);color:var(--text);border:1px solid var(--line-2);padding:11px 16px 11px 30px;border-radius:12px;font-size:13.5px;z-index:50;max-width:calc(100% - 32px);box-shadow:0 18px 40px rgba(0,0,0,.5)}
-.toast::before{content:"";position:absolute;left:13px;top:50%;width:7px;height:7px;margin-top:-3.5px;border-radius:50%;background:var(--blue)}
+.toast{position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);width:max-content;max-width:min(380px,calc(100% - 32px));display:grid;gap:3px;
+  background:#F1EDE5;color:#151515;border-radius:14px;padding:13px 18px 14px;font-size:14px;line-height:1.45;text-align:left;z-index:50;-webkit-user-select:none;user-select:none;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.75),0 0 0 1px rgba(0,0,0,.4),0 20px 44px -14px rgba(0,0,0,.8)}
+.toast b{font-family:var(--f-display);font-weight:600;font-size:14.5px;letter-spacing:-.01em}
+.toast span{color:#5F5B54;font-size:13.5px}
+.toast.out{animation:toastOut .22s ease both!important}
+@keyframes toastOut{to{opacity:0;transform:translate(-50%,6px)}}
 .copybox:not([hidden]){width:100%;max-width:794px;margin:0 auto 14px;display:block;min-height:120px}
 
 /* ---------- paper ---------- */
@@ -233,9 +238,14 @@ table.t{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums;ma
 .sync[data-state="err"]::before{background:var(--bad);box-shadow:0 0 0 3px rgba(240,112,94,.15)}
 @keyframes pulse{50%{opacity:.3}}
 .acct{position:relative}
-.avatar{width:34px;height:34px;border-radius:50%;border:1px solid #33373F;background:linear-gradient(180deg,#2A2E35,#16191D);box-shadow:inset 0 1px 0 rgba(255,255,255,.08),0 1px 2px rgba(0,0,0,.6);font-family:var(--f-display);font-weight:600;cursor:pointer;color:var(--text)}
+.avatar{padding:0;overflow:hidden;display:grid;place-items:center;width:34px;height:34px;border-radius:50%;border:1px solid #33373F;background:linear-gradient(180deg,#2A2E35,#16191D);box-shadow:inset 0 1px 0 rgba(255,255,255,.08),0 1px 2px rgba(0,0,0,.6);font-family:var(--f-display);font-weight:600;cursor:pointer;color:var(--text)}
 .avatar:hover{border-color:var(--muted)}
 .menu{position:absolute;right:0;top:calc(100% + 10px);min-width:240px;background:rgba(17,19,23,.96);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border:1px solid var(--line-2);border-radius:14px;padding:6px;box-shadow:0 24px 60px rgba(0,0,0,.6);z-index:40;animation:fadeUp .18s ease both}
+.avatar img{width:100%;height:100%;display:block;object-fit:cover;border-radius:50%;transition:opacity .3s ease}
+.avatar img.loading{opacity:.001}
+.menu .who-row{display:flex;align-items:center;gap:12px;padding:10px 12px 12px;border-bottom:1px solid var(--line);margin-bottom:4px}
+.menu .who-row img{width:40px;height:40px;border-radius:50%;flex:none;box-shadow:0 0 0 1px rgba(255,255,255,.1)}
+.menu .who-row .who{padding:0;border:0;margin:0}
 .menu .who{padding:10px 12px;font-size:12.5px;color:var(--muted);border-bottom:1px solid var(--line);margin-bottom:4px;overflow-wrap:anywhere}
 .menu button{display:block;width:100%;text-align:left;background:none;border:0;padding:9px 12px;border-radius:9px;cursor:pointer;font-size:14px}
 .menu button:hover{background:var(--raise)}
@@ -320,6 +330,11 @@ body[data-view="deals"] .layout,body[data-view="settings"] .layout{display:none!
 .upi-row button:hover{color:var(--bad)}
 #upiNew{background:var(--raise);border:1px solid transparent;border-radius:var(--r-s);padding:9px 12px;color:inherit;font:inherit;min-height:40px}
 .rowx{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.acct-row{display:flex;gap:16px;align-items:center}
+.acct-row img{width:64px;height:64px;border-radius:50%;flex:none;object-fit:cover;box-shadow:0 0 0 1px rgba(255,255,255,.1),0 6px 16px -6px rgba(0,0,0,.8)}
+.acct-row #whoFull{margin:0;color:var(--text);font-weight:500}
+.avatar img,.menu .who-row img{width:100%;height:100%;object-fit:cover;display:block}
+.menu .who-row img{width:40px;height:40px}
 #agencyCard.locked h3::after{content:"Owner only";margin-left:10px;vertical-align:middle;font-family:var(--f-body);font-size:11.5px;font-weight:500;color:var(--muted);padding:3px 9px 3px 22px;border:1px solid var(--line-2);border-radius:999px;
   background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='11' height='11' viewBox='0 0 24 24' fill='none' stroke='%238C887F' stroke-width='2.6' stroke-linecap='round'%3E%3Crect x='4' y='11' width='16' height='10' rx='2'/%3E%3Cpath d='M8 11V8a4 4 0 0 1 8 0v3'/%3E%3C/svg%3E") no-repeat 8px center}
 #agencyCard.locked input,#agencyCard.locked select{opacity:.62;cursor:not-allowed}
@@ -554,7 +569,7 @@ body::before{content:"";position:fixed;inset:0;z-index:100;pointer-events:none;o
     </div>
     <span class="sync" id="sync" data-state="ok" aria-live="polite">Saved</span>
     <div class="acct"><button class="avatar" id="acctBtn" type="button" aria-haspopup="true" aria-expanded="false">V</button>
-      <div class="menu" id="acctMenu" hidden><div class="who" id="who"></div><button type="button" data-v="settings">Settings</button><button type="button" id="logout">Log out</button></div></div>
+      <div class="menu" id="acctMenu" hidden><div class="who-row"><img id="whoPic" alt=""><div class="who" id="who"></div></div><button type="button" data-v="settings">Settings</button><button type="button" id="logout">Log out</button></div></div>
   </div>
 </header>
 
@@ -569,7 +584,9 @@ body::before{content:"";position:fixed;inset:0;z-index:100;pointer-events:none;o
 
 <section class="view" id="view-settings"><div class="settings">
   <div><p class="eyebrow">Veltix admin</p><h1 class="h1">Settings</h1></div>
-  <div class="card-s"><h3>Account</h3><p id="whoFull">Signed in</p><div class="rowx"><button class="btn" id="logout2" type="button">Log out</button></div></div>
+  <div class="card-s"><h3>Account</h3>
+    <div class="acct-row"><img id="whoBig" alt="Your profile picture"><div><p id="whoFull">Signed in</p><p class="hint" style="margin:2px 0 0">Your photo comes from <b>Gravatar</b>, using this email. To change it, sign in at gravatar.com with the same email and upload a photo. Until then you get your own character.</p></div></div>
+    <div class="rowx" style="margin-top:16px"><button class="btn" id="logout2" type="button">Log out</button></div></div>
   <div class="card-s" id="agencyCard"><h3>Your agency details</h3><p>Saved to your account. Used on every agreement, invoice and payment link, on all your devices.</p><div class="grid2">
         <label class="f"><span>Signing as</span><input type="text" id="a-owner" data-k="agency.owner"></label>
         <label class="f"><span>Title</span><input type="text" id="a-title" data-k="agency.title"></label>
@@ -1013,7 +1030,14 @@ function goToField(id,view){
   },380);
 }
 /* ---------- toast ---------- */
-function toast(t){const el=document.createElement("div");el.className="toast";el.textContent=t;document.body.appendChild(el);setTimeout(()=>el.remove(),2600)}
+function toast(t,sub){
+  document.querySelectorAll(".toast").forEach(x=>x.remove());
+  const el=document.createElement("div");el.className="toast";el.setAttribute("role","status");
+  if(sub){const b=document.createElement("b");b.textContent=t;const s=document.createElement("span");s.textContent=sub;el.append(b,s)}else el.textContent=t;
+  document.body.appendChild(el);
+  const ms=Math.min(6500,2400+((t+(sub||"")).length*35));
+  setTimeout(()=>{el.classList.add("out");setTimeout(()=>el.remove(),230)},ms);
+}
 
 /* ---------- Supabase: auth, sync, dashboard ---------- */
 const CFG=window.VELTIX_CONFIG||{};
@@ -1243,10 +1267,52 @@ function renderSetupNeeded(){
   <p class="sub" style="margin:0">After saving, refresh this page. The setup guide in <b>desk-setup/README.md</b> shows where to find each value.</p>`);
 }
 
+/* ---- profile picture: Gravatar for this email, otherwise a character drawn from the email ---- */
+function hashStr(s){let h=2166136261;for(const c of s){h^=c.charCodeAt(0);h=Math.imul(h,16777619)}return h>>>0}
+function characterAvatar(email){
+  const h=hashStr(String(email).trim().toLowerCase()),pick=(a,n)=>a[(h>>>n)%a.length];
+  const bg=pick(["#2B3A55","#3A2F4D","#22433A","#4A3426","#1F3B4D","#463043","#33402A"],0);
+  const skin=pick(["#F2D3B1","#E8B98F","#C98E62","#A86F48","#7A4E2F","#F5DCC4"],3);
+  const hair=pick(["#1C1712","#3B2A1E","#6B4423","#A8743A","#D9B26A","#2A2A33","#8C3B2A"],6);
+  const shirt=pick(["#4F8CFF","#E8E2D6","#2FBF71","#E0A43C","#C46BAE","#5C6470"],9);
+  const style=(h>>>12)%4,glasses=((h>>>15)%5)===0,smile=(h>>>17)%2;
+  const hairSvg=[
+    `<path d="M18 28c0-9 6-15 14-15s14 6 14 15c-2-5-6-8-14-8s-12 3-14 8z" fill="${hair}"/>`,
+    `<path d="M17 31c0-11 6-18 15-18s15 7 15 18v9c-2 0-3-2-3-4v-7c-3-4-7-6-12-6s-9 2-12 6v7c0 2-1 4-3 4z" fill="${hair}"/>`,
+    `<circle cx="32" cy="10" r="5" fill="${hair}"/><path d="M18 28c0-9 6-15 14-15s14 6 14 15c-3-4-7-6-14-6s-11 2-14 6z" fill="${hair}"/>`,
+    `<path d="M19 26c1-8 6-13 13-13 8 0 13 5 13 13l-3-1-2-4-3 3-3-4-3 4-3-4-3 4-2-3z" fill="${hair}"/>`][style];
+  const svg=`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><rect width="64" height="64" fill="${bg}"/>
+<path d="M10 64c2-11 11-17 22-17s20 6 22 17z" fill="${shirt}"/><rect x="28" y="39" width="8" height="9" rx="3" fill="${skin}"/>
+<circle cx="32" cy="29" r="13" fill="${skin}"/>${hairSvg}
+<circle cx="27" cy="30" r="1.6" fill="#1A1A1A"/><circle cx="37" cy="30" r="1.6" fill="#1A1A1A"/>
+${smile?`<path d="M28 35c2 2.4 6 2.4 8 0" stroke="#1A1A1A" stroke-width="1.6" fill="none" stroke-linecap="round"/>`:`<path d="M29 35.5h6" stroke="#1A1A1A" stroke-width="1.6" stroke-linecap="round"/>`}
+${glasses?`<g fill="none" stroke="#111" stroke-width="1.3"><circle cx="27" cy="30" r="3.6"/><circle cx="37" cy="30" r="3.6"/><path d="M30.6 30h2.8"/></g>`:""}
+<circle cx="24" cy="34" r="1.8" fill="#E77" opacity=".25"/><circle cx="40" cy="34" r="1.8" fill="#E77" opacity=".25"/></svg>`;
+  return "data:image/svg+xml;charset=utf-8,"+encodeURIComponent(svg);
+}
+async function setAvatar(email,meta){
+  const btn=$id("acctBtn"),pic=$id("whoPic"),big=$id("whoBig"),fallback=characterAvatar(email);
+  const show=src=>{const i=btn.querySelector("img");if(i)i.src=src;if(pic)pic.src=src;if(big)big.src=src};
+  btn.innerHTML=`<img alt="" src="${fallback}" referrerpolicy="no-referrer">`;btn.setAttribute("aria-label","Account: "+email);show(fallback);
+  // 1. a photo that comes with the login itself (e.g. if you later sign in with Google)
+  const own=meta&&(meta.avatar_url||meta.picture);
+  if(own&&/^https:\/\//.test(own)){const im=new Image();im.referrerPolicy="no-referrer";im.onload=()=>show(own);im.src=own;return}
+  // 2. the Gravatar photo linked to this email
+  try{
+    if(!email||!(window.crypto&&crypto.subtle))return;
+    const buf=await crypto.subtle.digest("SHA-256",new TextEncoder().encode(email.trim().toLowerCase()));
+    const hex=[...new Uint8Array(buf)].map(b=>b.toString(16).padStart(2,"0")).join("");
+    const url=`https://www.gravatar.com/avatar/${hex}?s=160&d=404`;
+    const im=new Image();im.referrerPolicy="no-referrer";
+    im.onload=()=>show(url);
+    im.src=url; // no Gravatar for this email → 404 → the character stays
+  }catch(e){}
+}
+
 async function boot(user){
   USER=user;showApp();
   $id("who").textContent=user.email;$id("whoFull").textContent="Signed in as "+user.email;
-  $id("acctBtn").textContent=(user.email||"V")[0].toUpperCase();
+  setAvatar(user.email||"",user.user_metadata);
   if(!booted){booted=true;await loadAll();await loadApproved()}
   S=sampleDeal();S.agency=AGENCY;loadUI();updateDealState();
   setView("deals");
@@ -1468,7 +1534,7 @@ document.getElementById("reqWa").onclick=()=>{
   if(needUpi())return;
   const amt=num(document.getElementById("req-amt").value);
   if(amt<=0){toast("Enter an amount");return}
-  if(isLocal){toast("You're testing on this computer, so the link wouldn't open for your client. Use Preview to check it. Real links send from veltix.in/desk once the site is live.");return}
+  if(isLocal){toast("Test mode","Links made on this computer won't open for clients. Use Preview to check it, and send real links from veltix.in/desk.");return}
   const num_=waNumber();
   const t=`Hi ${S.client.name||"there"}, here's the payment link for ${document.getElementById("req-lbl").value||"your project"} (${S.project.name||"website project"}):\n\n${fmt(amt)} · invoice ${S.doc.invoiceNo}\n\nPay here 👇\n${payLink()}\n\n${S.agency.bizUpi?"It opens PhonePe, Google Pay or Paytm with the amount filled in.":"It shows our UPI ID and the exact amount to pay."} You'll get a receipt as soon as you pay.\n\n${S.agency.owner}, Veltix`;
   window.open(num_.length>=11?`https://wa.me/${num_}?text=${encodeURIComponent(t)}`:`https://wa.me/?text=${encodeURIComponent(t)}`,"_blank");
