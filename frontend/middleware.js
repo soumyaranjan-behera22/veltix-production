@@ -27,11 +27,13 @@ function upiFromLink(d) {
 const norm = (s) => String(s || "").trim().toLowerCase();
 
 // UPI IDs saved in the admin panel, from Supabase. null = couldn't check.
-async function savedUpiIds() {
+// fresh=true skips the 60-second cache (used when a UPI ID isn't found, so a
+// UPI ID you saved a moment ago is picked up straight away).
+async function savedUpiIds(fresh = false) {
   const url = (process.env.DESK_SUPABASE_URL || "").trim().replace(/\/$/, "");
   const key = (process.env.DESK_SUPABASE_KEY || "").trim();
   if (!url || !key) return null;
-  if (cache.list && Date.now() - cache.at < CACHE_MS) return cache.list;
+  if (!fresh && cache.list && Date.now() - cache.at < CACHE_MS) return cache.list;
   const ctl = new AbortController();
   const timer = setTimeout(() => ctl.abort(), 2500);
   try {
@@ -55,12 +57,12 @@ async function savedUpiIds() {
   }
 }
 
-function invalidPage() {
+function invalidPage(ref) {
   const html = `<!doctype html><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Invalid payment link</title><body style="margin:0;background:#0c0d0f;color:#ebe8e1;font:16px/1.5 system-ui,sans-serif;display:grid;place-items:center;min-height:100vh;padding:16px">
 <div style="background:#F1EDE5;color:#151515;border-radius:16px;padding:28px 24px;max-width:420px">
 <div style="font-family:monospace;letter-spacing:.08em;border-bottom:1px dashed #c8c1b4;padding-bottom:12px;margin-bottom:16px">VELTIX</div>
-<b style="font-size:20px">This payment link isn't valid</b><p style="color:#66625b">It wasn't created by Veltix. Please don't pay through it, and contact Veltix on WhatsApp for the correct link.</p></div></body>`;
+<b style="font-size:20px">This payment link isn't valid</b><p style="color:#66625b">It wasn't created by Veltix. Please don't pay through it, and contact Veltix on WhatsApp for the correct link.</p><p style="color:#9a958c;font:12px monospace;margin:14px 0 0">Ref ${ref}</p></div></body>`;
   return new Response(html, { status: 403, headers: { "content-type": "text/html; charset=utf-8", "cache-control": "no-store" } });
 }
 
@@ -72,13 +74,14 @@ export default async function middleware(request) {
   const extra = (process.env.DESK_UPI || "").split(",").map(norm).filter(Boolean);
   if (upi && extra.includes(upi)) return;
 
-  const saved = await savedUpiIds();
+  let saved = await savedUpiIds();
+  if (saved && upi && !saved.includes(upi)) saved = await savedUpiIds(true); // maybe just added: re-check
   if (saved === null) {
     // Guard not configured or Supabase unreachable: only block if DESK_UPI says so,
     // never stop a genuine client from paying because of an outage.
-    if (extra.length && upi && !extra.includes(upi)) return invalidPage();
+    if (extra.length && upi && !extra.includes(upi)) return invalidPage("E1 (database not reached, only DESK_UPI checked)");
     return;
   }
   if (upi && saved.includes(upi)) return;
-  return invalidPage();
+  return invalidPage(`L${saved.length} (UPI ID not saved in admin)`);
 }

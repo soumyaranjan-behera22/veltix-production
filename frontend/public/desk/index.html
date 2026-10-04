@@ -1117,7 +1117,9 @@ document.getElementById("req-upi").addEventListener("input",e=>{
   store("veltix-agency",AGENCY);showUpiState();updateLink();
 });
 // save to your account once you finish typing (so half-typed IDs aren't remembered)
-document.getElementById("req-upi").addEventListener("change",()=>{if(upiOk()){queueSettingsSave();fillUpiField();refresh()}});
+document.getElementById("req-upi").addEventListener("change",()=>{if(upiOk()){clearTimeout(setTimer);saveSettingsNow();fillUpiField();refresh()}});
+// Settings → UPI ID: save the moment you finish typing, so new links are accepted right away
+document.getElementById("a-upi").addEventListener("change",()=>{if(upiOk()){clearTimeout(setTimer);saveSettingsNow()}});
 document.getElementById("reqOpen").addEventListener("click",e=>{if(needUpi())e.preventDefault()});
 function needUpi(){if(upiOk())return false;toast("Add a valid UPI ID first");document.getElementById("req-upi").focus();return true}
 ["req-amt","req-lbl"].forEach(id=>document.getElementById(id).addEventListener("input",updateLink));
