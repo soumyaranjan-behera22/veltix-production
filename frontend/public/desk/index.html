@@ -1230,10 +1230,23 @@ function renderForgot(email){
   <button class="link" type="button" id="toLogin">Back to log in</button>`);
   $id("toLogin").onclick=()=>renderLogin();
   $id("fgForm").onsubmit=async e=>{
-    e.preventDefault();const em=$id("fgEmail").value.trim();if(!em)return;
+    e.preventDefault();const em=$id("fgEmail").value.trim();
+    if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(em)){renderForgot(em);$id("authBody").insertAdjacentHTML("afterbegin",msgHtml("err","Enter the email you log in with."));$id("fgEmail").focus();return}
     $id("fgGo").disabled=true;$id("fgGo").textContent="Sending…";
+    // the link in the email comes back to this same desk page (veltix.in/desk/, or localhost while testing)
     const {error}=await sb.auth.resetPasswordForEmail(em,{redirectTo:location.origin+"/desk/"});
-    renderLogin(error?"err":"ok",error?error.message:"Check your inbox for the reset link.");
+    if(error){
+      const m=error.message||"";
+      const text=/rate|security purposes|seconds|too many/i.test(m)?"Too many reset emails in a short time. Wait a few minutes, then try again."
+        :/fetch|network|load failed/i.test(m)?"Can't reach Supabase. Check your internet and try again."
+        :m;
+      renderForgot(em);$id("authBody").insertAdjacentHTML("afterbegin",msgHtml("err",text));return;
+    }
+    store("veltix-last-email",em);
+    authBody(`<h1>Check your email</h1><p class="sub">If <b>${esc(em)}</b> has a desk account, a reset link is on its way. It works once and expires in about an hour.</p>
+      <p class="sub" style="margin-top:-6px">Open the link on this device. It brings you back here to choose a new password. Not in your inbox? Check spam.</p>
+      <button class="go" type="button" id="toLogin2">Back to log in</button>`);
+    $id("toLogin2").onclick=()=>renderLogin();
   };
 }
 function renderNewPassword(){
@@ -1249,7 +1262,11 @@ function renderNewPassword(){
     if(a!==b){$id("npMsg").innerHTML=msgHtml("err","The two passwords don't match.");return}
     $id("npGo").disabled=true;$id("npGo").textContent="Saving…";
     const {data,error}=await sb.auth.updateUser({password:a});
-    if(error){$id("npMsg").innerHTML=msgHtml("err",error.message);$id("npGo").disabled=false;$id("npGo").textContent="Save password";return}
+    if(error){
+      const m=error.message||"";
+      if(/session|jwt|expired|not authenticated/i.test(m)){history.replaceState(null,"",location.pathname);renderForgot(store("veltix-last-email")||"");$id("authBody").insertAdjacentHTML("afterbegin",msgHtml("err","This reset link has expired. Send yourself a new one."));return}
+      $id("npMsg").innerHTML=msgHtml("err",/same|different from the old/i.test(m)?"Choose a password you haven't used before.":/weak|pwned|leaked/i.test(m)?"That password is too easy to guess. Try a longer one.":m);
+      $id("npGo").disabled=false;$id("npGo").textContent="Save password";return}
     history.replaceState(null,"",location.pathname);
     isAdmin(data.user)?boot(data.user):renderLogin("ok","Password saved. Log in with it now.");
   };
@@ -1320,6 +1337,15 @@ async function boot(user){
 async function initAuth(){
   showAuth();
   if(!sb){renderSetupNeeded();return}
+  // a reset link that failed (expired, already used) comes back with an error in the address
+  const back=new URLSearchParams((location.hash||"").replace(/^#/,"")+"&"+(location.search||"").replace(/^\?/,""));
+  if(back.get("error")||back.get("error_code")){
+    const code=back.get("error_code")||"",desc=(back.get("error_description")||"").replace(/\+/g," ");
+    history.replaceState(null,"",location.pathname);
+    renderForgot(store("veltix-last-email")||"");
+    $id("authBody").insertAdjacentHTML("afterbegin",msgHtml("err",/expired|otp_expired|invalid/i.test(code+desc)?"That reset link has expired or was already used. Send yourself a new one.":(desc||"That link didn't work. Send yourself a new one.")));
+    return;
+  }
   let recovering=/type=recovery/.test(location.hash);
   sb.auth.onAuthStateChange((ev,session)=>{
     if(ev==="PASSWORD_RECOVERY"){recovering=true;renderNewPassword()}
