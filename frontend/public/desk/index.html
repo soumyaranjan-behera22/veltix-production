@@ -37,6 +37,8 @@ img.logo-img{object-fit:cover;background:transparent;padding:0;display:block;fle
 html,body{background:var(--desk);color:var(--text)}
 body{font-family:var(--f-body);font-size:14px;line-height:1.5;-webkit-font-smoothing:antialiased;font-feature-settings:"cv11","ss01"}
 button,input,select,textarea{font:inherit;color:inherit}
+button,.btn,a.btn,.bottomnav,.tabs,.seg,.plans,.deal .open,.add,.back,.del,.avatar,.menu button,.go,.link,.checks label,.st{-webkit-tap-highlight-color:transparent;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+html{-webkit-tap-highlight-color:transparent}
 :focus-visible{outline:2px solid var(--blue);outline-offset:2px}
 ::selection{background:rgba(79,140,255,.35)}
 
@@ -127,7 +129,7 @@ input[type=checkbox]{width:16px;height:16px;accent-color:var(--blue)}
 .btn:active{transform:translateY(1px);box-shadow:inset 0 2px 4px rgba(0,0,0,.6)}
 .btn.primary{background:linear-gradient(180deg,#FBF8F2 0%,#ECE6DA 60%,#E2DBCD 100%);color:#121212;border-color:#C9C1B1;font-weight:600;
   box-shadow:inset 0 1px 0 #fff,inset 0 -1px 0 rgba(0,0,0,.08),0 1px 1px rgba(0,0,0,.5),0 6px 14px -8px rgba(0,0,0,.9)}
-.btn.primary:hover{background:linear-gradient(180deg,#FFFFFF 0%,#F1ECE2 60%,#E7E0D3 100%);border-color:#D2CABB}
+.btn.primary:hover{filter:brightness(1.03)}
 .btn.primary:active{box-shadow:inset 0 2px 4px rgba(0,0,0,.25)}
 .btn.pay{background:linear-gradient(180deg,#6A9DFF 0%,#4A84F5 55%,#3A70E2 100%);color:#fff;border-color:#2C5FCC;font-weight:600;text-shadow:0 -1px 0 rgba(0,0,0,.2);
   box-shadow:inset 0 1px 0 rgba(255,255,255,.3),inset 0 -1px 0 rgba(0,0,0,.15),0 1px 1px rgba(0,0,0,.5),0 6px 14px -8px rgba(0,0,0,.9)}
@@ -318,6 +320,9 @@ body[data-view="deals"] .layout,body[data-view="settings"] .layout{display:none!
 .upi-row button:hover{color:var(--bad)}
 #upiNew{background:var(--raise);border:1px solid transparent;border-radius:var(--r-s);padding:9px 12px;color:inherit;font:inherit;min-height:40px}
 .rowx{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+#agencyCard.locked h3::after{content:"Owner only";margin-left:10px;vertical-align:middle;font-family:var(--f-body);font-size:11.5px;font-weight:500;color:var(--muted);padding:3px 9px 3px 22px;border:1px solid var(--line-2);border-radius:999px;
+  background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='11' height='11' viewBox='0 0 24 24' fill='none' stroke='%238C887F' stroke-width='2.6' stroke-linecap='round'%3E%3Crect x='4' y='11' width='16' height='10' rx='2'/%3E%3Cpath d='M8 11V8a4 4 0 0 1 8 0v3'/%3E%3C/svg%3E") no-repeat 8px center}
+#agencyCard.locked input,#agencyCard.locked select{opacity:.62;cursor:not-allowed}
 
 /* ---------- phones: floating tab bar ---------- */
 .bottomnav{display:none}
@@ -327,10 +332,21 @@ body[data-view="deals"] .layout,body[data-view="settings"] .layout{display:none!
   .h1{font-size:36px}
   .dash-head{align-items:center}
   .bottomnav{display:flex;position:fixed;left:12px;right:12px;bottom:calc(10px + env(safe-area-inset-bottom,0px));z-index:30;background:rgba(17,19,23,.82);backdrop-filter:blur(20px) saturate(1.4);-webkit-backdrop-filter:blur(20px) saturate(1.4);border:1px solid var(--line-2);border-radius:20px;padding:6px;box-shadow:0 18px 40px rgba(0,0,0,.55)}
-  .bottomnav button{flex:1;display:grid;justify-items:center;gap:3px;background:none;border:0;color:var(--muted);font-size:10.5px;font-weight:500;padding:7px 0;border-radius:14px;cursor:pointer;font-family:var(--f-body);transition:background-color .2s ease,color .2s ease}
-  .bottomnav button svg{width:21px;height:21px}
-  .bottomnav button[aria-selected="true"]{color:var(--text);background:rgba(79,140,255,.14)}
-  .bottomnav button[aria-selected="true"] svg{color:#8FB5FF}
+  .bottomnav button{position:relative;z-index:1;flex:1;display:grid;justify-items:center;gap:3px;background:none;border:0;color:var(--muted);font-size:10.5px;font-weight:500;padding:7px 0;border-radius:15px;cursor:pointer;font-family:var(--f-body);transition:color .3s ease}
+  .bottomnav button svg{width:21px;height:21px;transition:transform .45s cubic-bezier(.34,1.56,.64,1),color .3s ease}
+  .bottomnav button span{transition:transform .45s cubic-bezier(.34,1.56,.64,1)}
+  .bottomnav button[aria-selected="true"]{color:var(--text)}
+  .bottomnav button[aria-selected="true"] svg{color:#A9C6FF;transform:translateY(-1px)}
+  /* press: the icon dips, then springs back */
+  .bottomnav button:active svg{transform:scale(.82);transition-duration:.12s}
+  .bottomnav button:active span{transform:scale(.94);transition-duration:.12s}
+  .bottomnav button:focus-visible{outline:none;box-shadow:inset 0 0 0 2px rgba(79,140,255,.6)}
+  /* the selected pill slides between tabs */
+  .nav-pill{position:absolute;z-index:0;top:6px;bottom:6px;left:0;width:0;border-radius:15px;pointer-events:none;
+    background:linear-gradient(180deg,rgba(79,140,255,.22),rgba(79,140,255,.10));box-shadow:inset 0 1px 0 rgba(255,255,255,.08),inset 0 0 0 1px rgba(79,140,255,.28);
+    transition:transform .5s cubic-bezier(.34,1.3,.64,1),width .5s cubic-bezier(.34,1.3,.64,1),opacity .2s ease}
+  .nav-pill.ripple::after{content:"";position:absolute;inset:0;border-radius:inherit;background:rgba(169,198,255,.25);animation:pillPop .5s ease-out both}
+  @keyframes pillPop{from{opacity:1;transform:scale(.85)}to{opacity:0;transform:scale(1.08)}}
   #app{padding-bottom:calc(92px + env(safe-area-inset-bottom,0px))}
   .toast{bottom:calc(96px + env(safe-area-inset-bottom,0px))}
   .view{padding-top:26px}
@@ -471,10 +487,57 @@ body::before{content:"";position:fixed;inset:0;z-index:100;pointer-events:none;o
   .rowx .btn{flex:1}
   .bottomnav{border-radius:22px}
 }
+
+/* ================= React Bits effects, re-built in plain CSS (the desk isn't a React app) =================
+   Star Border: a point of light travels along the top and bottom edge of the main buttons.
+   Glare Hover: a sheet of light sweeps across a button when you hover or press it.
+   Click Spark: see the small script at the end of the page. */
+.btn,.add,.back{overflow:hidden;isolation:isolate}
+.btn::before,.add::before,.back::before,.auth .go::before{content:"";position:absolute;inset:0;z-index:2;pointer-events:none;border-radius:inherit;
+  background:linear-gradient(-45deg,transparent 0%,transparent 42%,rgba(255,255,255,.28) 50%,transparent 58%,transparent 100%);background-size:250% 250%;background-repeat:no-repeat;background-position:-100% -100%;transition:background-position .7s ease}
+.btn:hover::before,.btn:active::before,.add:hover::before,.back:hover::before,.auth .go:hover::before{background-position:100% 100%}
+.auth .go{position:relative;overflow:hidden}
+.btn.primary::before{background-image:linear-gradient(-45deg,transparent 42%,rgba(255,255,255,.9) 50%,transparent 58%)}
+/* Star Border */
+.btn.primary,.btn.pay,.btn.wa{border:1px solid transparent;background-repeat:no-repeat;animation:starEdge 6s linear infinite alternate;
+  background-size:100% 100%,60% 100%,60% 100%,100% 100%}
+.btn.primary{background-image:linear-gradient(180deg,#FBF8F2 0%,#ECE6DA 60%,#E2DBCD 100%),radial-gradient(50% 55% at 50% 0%,#4F8CFF,transparent 72%),radial-gradient(50% 55% at 50% 100%,#4F8CFF,transparent 72%),linear-gradient(#C9C1B1,#C9C1B1);
+  background-origin:padding-box,border-box,border-box,border-box;background-clip:padding-box,border-box,border-box,border-box}
+.btn.pay{background-image:linear-gradient(180deg,#6A9DFF 0%,#4A84F5 55%,#3A70E2 100%),radial-gradient(50% 55% at 50% 0%,#fff,transparent 72%),radial-gradient(50% 55% at 50% 100%,#fff,transparent 72%),linear-gradient(#2C5FCC,#2C5FCC);
+  background-origin:padding-box,border-box,border-box,border-box;background-clip:padding-box,border-box,border-box,border-box;animation-delay:-2s}
+.btn.wa{background-image:linear-gradient(180deg,#34CF74 0%,#20B25E 55%,#199A50 100%),radial-gradient(50% 55% at 50% 0%,#fff,transparent 72%),radial-gradient(50% 55% at 50% 100%,#fff,transparent 72%),linear-gradient(#127F3E,#127F3E);
+  background-origin:padding-box,border-box,border-box,border-box;background-clip:padding-box,border-box,border-box,border-box;animation-delay:-4s}
+.btn.primary:hover,.btn.pay:hover,.btn.wa:hover{border-color:transparent}
+@keyframes starEdge{from{background-position:0 0,-150% 0,250% 0,0 0}to{background-position:0 0,250% 0,-150% 0,0 0}}
+@media (prefers-reduced-motion:reduce){.btn.primary,.btn.pay,.btn.wa{animation:none}}
 </style>
 <style>body{margin:0}</style>
 </head>
 <body>
+<script>
+/* Click Spark (React Bits "ClickSpark", re-built without React): 8 short lines burst from where you press a button */
+(function(){
+  if(matchMedia("(prefers-reduced-motion: reduce)").matches)return;
+  const cv=document.createElement("canvas");cv.setAttribute("aria-hidden","true");
+  cv.style.cssText="position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:9999";
+  const ctx=cv.getContext("2d");let sparks=[],raf=0;
+  function size(){const d=devicePixelRatio||1;cv.width=innerWidth*d;cv.height=innerHeight*d;ctx.setTransform(d,0,0,d,0,0)}
+  function draw(t){
+    ctx.clearRect(0,0,innerWidth,innerHeight);
+    sparks=sparks.filter(s=>{const p=(t-s.t)/420;if(p>=1)return false;const e=p*(2-p),d=e*22,l=10*(1-e);
+      ctx.strokeStyle=s.c;ctx.lineWidth=2;ctx.lineCap="round";ctx.globalAlpha=1-p;ctx.beginPath();
+      ctx.moveTo(s.x+d*Math.cos(s.a),s.y+d*Math.sin(s.a));ctx.lineTo(s.x+(d+l)*Math.cos(s.a),s.y+(d+l)*Math.sin(s.a));ctx.stroke();return true});
+    ctx.globalAlpha=1;raf=sparks.length?requestAnimationFrame(draw):0;
+  }
+  document.addEventListener("pointerdown",e=>{
+    const b=e.target.closest(".btn,.go,.copy,.app,.add,.back,.seg button,.plans button");if(!b||b.disabled)return;
+    if(!cv.isConnected){document.body.appendChild(cv);size();addEventListener("resize",size)}
+    const onPaper=!!e.target.closest(".card,.rc,.auth-card,.paper");const c=onPaper?"#151515":"#ECE6DA";const t=performance.now();
+    for(let i=0;i<8;i++)sparks.push({x:e.clientX,y:e.clientY,a:i*Math.PI/4,t,c});
+    if(!raf)raf=requestAnimationFrame(draw);
+  },{passive:true});
+})();
+</script>
 
 
 <div id="auth" class="auth"><div class="auth-card"><div class="auth-brand"><img class="logo logo-img" src="/veltix-main-logo3.png" alt="Veltix"><div><b>VELTIX</b><span>Deal desk</span></div></div><div id="authBody"><div class="spin" aria-label="Loading"></div></div></div><p class="auth-foot">Private area for Veltix. Client payment links work without logging in.</p></div>
@@ -920,6 +983,23 @@ function setView(v){const changed=document.body.dataset.view!==v;document.body.d
   closeMenu();
 }
 document.addEventListener("click",e=>{const b=e.target.closest(".tabs [data-v],.bottomnav [data-v],.menu [data-v]");if(b)setView(b.dataset.v)});
+/* phone tab bar: one pill that glides to the selected tab */
+(function(){
+  const nav=document.querySelector(".bottomnav");if(!nav)return;
+  nav.style.position="fixed";const pill=document.createElement("span");pill.className="nav-pill";pill.setAttribute("aria-hidden","true");nav.prepend(pill);
+  let first=true;
+  function place(pop){
+    const b=nav.querySelector('button[aria-selected="true"]');if(!b||!nav.offsetWidth){pill.style.opacity="0";return}
+    if(first){pill.style.transition="none"}
+    pill.style.opacity="1";pill.style.width=b.offsetWidth+"px";pill.style.transform=`translateX(${b.offsetLeft}px)`;
+    if(first){pill.offsetWidth;pill.style.transition="";first=false}
+    if(pop){pill.classList.remove("ripple");void pill.offsetWidth;pill.classList.add("ripple")}
+  }
+  new MutationObserver(()=>place(true)).observe(nav,{subtree:true,attributes:true,attributeFilter:["aria-selected"]});
+  addEventListener("resize",()=>place(false));
+  nav.addEventListener("click",e=>{if(e.target.closest("button")&&navigator.vibrate)try{navigator.vibrate(8)}catch(_){}});
+  requestAnimationFrame(()=>place(false));
+})();
 const currentDoc=()=>document.body.dataset.view==="invoice"?"invoice":"agreement";
 
 /* ---------- jump to a field ---------- */
@@ -963,7 +1043,14 @@ async function saveDealNow(){
   setSync("ok","Saved");
 }
 function queueSettingsSave(){if(!USER)return;setSync("saving","Saving…");clearTimeout(setTimer);setTimer=setTimeout(saveSettingsNow,900)}
+let SHARED=false; // true once the shared agency_profile table exists
 async function saveSettingsNow(){
+  if(SHARED){
+    if(!IS_OWNER){setSync("ok","Saved");return} // team members can't change agency details
+    const {error}=await sb.from("agency_profile").upsert({id:1,data:AGENCY,updated_at:new Date().toISOString()});
+    if(error){setSync("err","Not saved");toast("Couldn't save. Only the owner can change agency details.");console.warn(error);return}
+    setSync("ok","Saved");return;
+  }
   // keep every UPI ID you've used, so payment links already sent keep working after a change
   const cur=String(AGENCY.upi||"").trim().toLowerCase();
   const hist=Array.isArray(AGENCY.upiHistory)?AGENCY.upiHistory:[];
@@ -987,6 +1074,12 @@ async function loadAll(){
     console.warn(err);return;
   }
   if(setRes.data&&setRes.data.data)Object.assign(AGENCY,setRes.data.data);
+  // one shared set of agency details, only the owner can change it (desk-setup/agency-owner-lock.sql)
+  SHARED=false;
+  try{
+    const ap=await sb.from("agency_profile").select("data").eq("id",1).maybeSingle();
+    if(!ap.error){SHARED=true;if(ap.data&&ap.data.data){const keep=AGENCY.upi;for(const k of Object.keys(AGENCY))delete AGENCY[k];Object.assign(AGENCY,defaultAgency,ap.data.data);if(!AGENCY.upi)AGENCY.upi=keep||""}}
+  }catch(e){SHARED=false}
   DEALS=(dealRes.data||[]).map(r=>({...r.data,id:r.id,updatedAt:r.updated_at}));
   DEALS.forEach(d=>{LAST[d.id]=JSON.stringify(dealData(d))});
   store("veltix-deals-cache",DEALS);store("veltix-agency",AGENCY);
@@ -1295,10 +1388,20 @@ function isApproved(v){return !APPROVED||APPROVED.includes(String(v||"").trim().
 async function loadApproved(){
   try{
     const [list,own]=await Promise.all([sb.from("approved_upi").select("upi").order("added_at"),sb.rpc("desk_is_owner")]);
-    if(list.error){APPROVED=null;IS_OWNER=false;renderApproved();return}
-    APPROVED=(list.data||[]).map(r=>r.upi);IS_OWNER=!own.error&&own.data===true;
-  }catch(e){APPROVED=null}
-  renderApproved();
+    IS_OWNER=!own.error&&own.data===true;
+    APPROVED=list.error?null:(list.data||[]).map(r=>r.upi);
+  }catch(e){APPROVED=null;IS_OWNER=false}
+  renderApproved();applySettingsLock();
+}
+function applySettingsLock(){
+  const card=document.getElementById("agencyCard");if(!card)return;
+  const lock=SHARED&&!IS_OWNER;
+  card.querySelectorAll("input,select,textarea").forEach(i=>{i.disabled=lock});
+  card.classList.toggle("locked",lock);
+  const p=card.querySelector("p");
+  if(p)p.textContent=!SHARED?"Saved to your account. Used on every agreement, invoice and payment link, on all your devices."
+    :IS_OWNER?"Shared with your whole team and used on every agreement, invoice and payment link. Only you (the owner) can change them."
+    :"Set by the owner and used on every agreement, invoice and payment link. Only the owner can change them.";
 }
 function renderApproved(){
   const card=document.getElementById("upiCard");if(!card)return;

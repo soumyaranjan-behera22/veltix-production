@@ -30,6 +30,8 @@ html,body{color:var(--text);margin:0}
 body{font-family:var(--f-body);font-size:15px;line-height:1.55;padding:calc(18px + env(safe-area-inset-top,0px)) 16px calc(44px + env(safe-area-inset-bottom,0px));min-height:100vh;min-height:100dvh;-webkit-font-smoothing:antialiased;
   background:radial-gradient(640px 520px at 50% 120px,var(--lamp),transparent 70%),radial-gradient(900px 500px at 50% 110%,rgba(79,140,255,.08),transparent 60%),var(--desk)}
 button,input,select{font:inherit;color:inherit}
+html{-webkit-tap-highlight-color:transparent}
+button,.btn,.copy,.app{-webkit-tap-highlight-color:transparent;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
 :focus-visible{outline:2px solid var(--blue);outline-offset:2px}
 .wrap{max-width:520px;margin:0 auto}
 .nav{display:flex;align-items:center;gap:12px;margin-bottom:16px}
@@ -204,9 +206,47 @@ button,input,select{font:inherit;color:inherit}
 .steps i{height:3px;flex:1;border-radius:3px;background:var(--line)}
 .steps i.on{background:linear-gradient(90deg,var(--blue),#8FB5FF)}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}html{scroll-behavior:auto}}
+
+/* ================= React Bits effects, re-built in plain CSS ================= */
+.btn,.copy,.app{position:relative;overflow:hidden;isolation:isolate}
+.btn::before,.copy::before,.app::before{content:"";position:absolute;inset:0;z-index:2;pointer-events:none;border-radius:inherit;
+  background:linear-gradient(-45deg,transparent 42%,rgba(255,255,255,.3) 50%,transparent 58%);background-size:250% 250%;background-repeat:no-repeat;background-position:-100% -100%;transition:background-position .7s ease}
+.copy::before,.app::before{background-image:linear-gradient(-45deg,transparent 42%,rgba(255,255,255,.95) 50%,transparent 58%)}
+.btn:hover::before,.btn:active::before,.copy:hover::before,.copy:active::before,.app:hover::before{background-position:100% 100%}
+/* Star Border on the actions that move money forward */
+.btn.dark,.btn.wa{border:1px solid transparent;background-repeat:no-repeat;animation:starEdge 6s linear infinite alternate;background-size:100% 100%,60% 100%,60% 100%,100% 100%;
+  background-origin:padding-box,border-box,border-box,border-box;background-clip:padding-box,border-box,border-box,border-box}
+.btn.dark{background-image:linear-gradient(180deg,#2B2B2B 0%,#151515 55%,#0E0E0E 100%),radial-gradient(50% 55% at 50% 0%,#fff,transparent 72%),radial-gradient(50% 55% at 50% 100%,#fff,transparent 72%),linear-gradient(#000,#000)}
+.btn.wa{background-image:linear-gradient(180deg,#3AD97B 0%,#22B862 55%,#1A9F53 100%),radial-gradient(50% 55% at 50% 0%,#fff,transparent 72%),radial-gradient(50% 55% at 50% 100%,#fff,transparent 72%),linear-gradient(#13853F,#13853F);animation-delay:-3s}
+@keyframes starEdge{from{background-position:0 0,-150% 0,250% 0,0 0}to{background-position:0 0,250% 0,-150% 0,0 0}}
+@media (prefers-reduced-motion:reduce){.btn.dark,.btn.wa{animation:none}}
 </style>
 </head>
 <body>
+<script>
+/* Click Spark (React Bits "ClickSpark", re-built without React): 8 short lines burst from where you press a button */
+(function(){
+  if(matchMedia("(prefers-reduced-motion: reduce)").matches)return;
+  const cv=document.createElement("canvas");cv.setAttribute("aria-hidden","true");
+  cv.style.cssText="position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:9999";
+  const ctx=cv.getContext("2d");let sparks=[],raf=0;
+  function size(){const d=devicePixelRatio||1;cv.width=innerWidth*d;cv.height=innerHeight*d;ctx.setTransform(d,0,0,d,0,0)}
+  function draw(t){
+    ctx.clearRect(0,0,innerWidth,innerHeight);
+    sparks=sparks.filter(s=>{const p=(t-s.t)/420;if(p>=1)return false;const e=p*(2-p),d=e*22,l=10*(1-e);
+      ctx.strokeStyle=s.c;ctx.lineWidth=2;ctx.lineCap="round";ctx.globalAlpha=1-p;ctx.beginPath();
+      ctx.moveTo(s.x+d*Math.cos(s.a),s.y+d*Math.sin(s.a));ctx.lineTo(s.x+(d+l)*Math.cos(s.a),s.y+(d+l)*Math.sin(s.a));ctx.stroke();return true});
+    ctx.globalAlpha=1;raf=sparks.length?requestAnimationFrame(draw):0;
+  }
+  document.addEventListener("pointerdown",e=>{
+    const b=e.target.closest(".btn,.go,.copy,.app,.add,.back,.seg button,.plans button");if(!b||b.disabled)return;
+    if(!cv.isConnected){document.body.appendChild(cv);size();addEventListener("resize",size)}
+    const onPaper=!!e.target.closest(".card,.rc,.auth-card,.paper");const c=onPaper?"#151515":"#ECE6DA";const t=performance.now();
+    for(let i=0;i<8;i++)sparks.push({x:e.clientX,y:e.clientY,a:i*Math.PI/4,t,c});
+    if(!raf)raf=requestAnimationFrame(draw);
+  },{passive:true});
+})();
+</script>
 <div class="wrap">
   <div class="nav"><img class="logo logo-img" src="/veltix-main-logo3.png" alt="Veltix"><div class="nav-t"><b>Veltix</b><span class="chip" id="chip">Payment</span></div><span class="secure"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="11" width="16" height="10" rx="2.5"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>Direct UPI</span></div>
   <div class="steps" aria-hidden="true"><i id="s1" class="on"></i><i id="s2"></i><i id="s3"></i></div>
