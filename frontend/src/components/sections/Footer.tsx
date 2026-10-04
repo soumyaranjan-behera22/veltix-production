@@ -8,7 +8,7 @@ import {
   useTransform,
   type MotionValue,
 } from "framer-motion";
-import { ArrowUp, ArrowUpRight, Check, Copy } from "lucide-react";
+import { ArrowUp, ArrowUpRight, Check, Copy, Lock } from "lucide-react";
 import { scrollToSection } from "@/lib/smoothscroll";
 import { AGENCY_EMAIL, AVAILABILITY } from "@/lib/site";
 
@@ -32,6 +32,10 @@ const FOUNDER = {
   name: "Soumya.",
   linkedin: "https://www.linkedin.com/in/soumyaranjan-behera007/", // e.g. "https://www.linkedin.com/in/your-profile"
 };
+
+// Private admin desk (agreements, invoices, payment links). It ships with this
+// site from public/desk and has its own login, so this is only a link.
+const DESK_URL = "/desk/";
 
 const WORDMARK = "VELTIX";
 const EASE = [0.76, 0, 0.24, 1] as const;
@@ -283,8 +287,19 @@ export default function Footer() {
 
       {/* Bottom bar */}
       <div className="container mx-auto flex items-center justify-between gap-4 px-5 pb-8 pt-6 font-sans text-sm text-muted-foreground md:px-12">
-               <span>
-          © {year} Veltix · Built by {FOUNDER.name}
+        <span className="flex flex-wrap items-center gap-x-3 gap-y-1">
+          <span>
+            © {year} Veltix · Built by {FOUNDER.name}
+          </span>
+          <a
+            href={DESK_URL}
+            rel="nofollow"
+            aria-label="Veltix admin login"
+            className="interactive inline-flex items-center gap-1.5 text-white/35 transition-colors hover:text-white"
+          >
+            <Lock className="h-3.5 w-3.5" aria-hidden="true" />
+            Admin
+          </a>
         </span>
                 <button
           type="button"

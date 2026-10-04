@@ -1,0 +1,403 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<meta name="theme-color" content="#0c0d0f">
+<title>Pay Veltix</title>
+<link rel="icon" href="/desk/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+[hidden]{display:none!important}
+img.logo-img{object-fit:cover;background:transparent;padding:0;display:block;flex:none}
+
+/* Layout: one cream card on the dark Veltix ground, phone-first, same language as the promise card */
+:root{
+  --desk:#0c0d0f; --line:#272a30; --text:#ebe8e1; --muted:#9b9993;
+  --paper:#F1EDE5; --ink:#151515; --ink-soft:#66625b; --rule:#c8c1b4;
+  --blue:#3E6BF2; --stamp:#93acec; --lime:#b8f040; --ok:#2d7d4c; --wa:#25D366;
+  --f-display:"Space Grotesk","Helvetica Neue",Arial,sans-serif;
+  --f-body:"Inter",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --f-mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+html,body{background:var(--desk);color:var(--text);margin:0}
+body{font-family:var(--f-body);font-size:15px;line-height:1.55;padding:calc(16px + env(safe-area-inset-top,0px)) 16px calc(40px + env(safe-area-inset-bottom,0px))}
+button,input,select{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
+.wrap{max-width:520px;margin:0 auto}
+.nav{display:flex;align-items:center;gap:10px;margin-bottom:14px}
+.logo{width:46px;height:46px;border-radius:50%;background:var(--blue);display:grid;place-items:center;font-family:var(--f-display);font-weight:600;color:#fff;font-size:20px;position:relative;flex:none}
+.logo i{position:absolute;width:6px;height:6px;background:var(--lime);right:12px;top:22px}
+.chip{border:1px solid var(--line);border-radius:999px;padding:10px 18px;font-family:var(--f-mono);font-size:13px;color:var(--text)}
+.card{background:var(--paper);color:var(--ink);border-radius:16px;padding:28px 24px;animation:up .4s cubic-bezier(.2,.8,.2,1) both}
+@keyframes up{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+@media (min-width:480px){.card{padding:36px 40px}}
+.head{display:flex;justify-content:space-between;gap:12px;align-items:baseline;padding-bottom:14px;border-bottom:1px dashed var(--rule);flex-wrap:wrap}
+.brand{font-family:var(--f-mono);font-weight:500;letter-spacing:.08em}
+.kick{font-family:var(--f-mono);color:var(--ink-soft);font-size:13px;letter-spacing:.04em}
+.amount{font-family:var(--f-display);font-weight:600;font-size:46px;line-height:1.05;letter-spacing:-.02em;margin:22px 0 6px;font-variant-numeric:tabular-nums}
+.for{color:var(--ink-soft);margin:0}
+.kv{display:grid;grid-template-columns:auto minmax(0,1fr);gap:8px 16px;margin:18px 0 0;padding:16px 0;border-top:1px dashed var(--rule);border-bottom:1px dashed var(--rule)}
+.kv dt{color:var(--ink-soft);font-size:14px}
+.kv dd{margin:0;text-align:right;font-weight:500;min-width:0;overflow-wrap:anywhere}
+.mono{font-family:var(--f-mono);font-size:13.5px}
+.btn{display:flex;width:100%;align-items:center;justify-content:center;gap:8px;border:0;border-radius:12px;padding:15px 18px;cursor:pointer;font-weight:600;font-size:16px;text-decoration:none;transition:transform .12s ease,box-shadow .2s ease,background-color .2s ease}
+.btn:active{transform:scale(.98)}
+.btn.dark{background:var(--ink);color:var(--paper)}
+.btn.dark:hover{box-shadow:0 8px 24px rgba(0,0,0,.25)}
+.btn.wa{background:var(--wa);color:#08311a}
+.btn.line{background:none;border:1.5px solid var(--ink);color:var(--ink)}
+.btn.ghost{background:none;color:var(--ink-soft);font-weight:500;font-size:14px;padding:10px}
+.stack{display:grid;gap:10px;margin-top:20px}
+.apps{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.app{border:1.5px solid var(--rule);border-radius:12px;padding:11px 6px;text-align:center;text-decoration:none;color:var(--ink);font-weight:600;font-size:13.5px;transition:border-color .2s ease,transform .12s ease}
+.app:hover{border-color:var(--ink)} .app:active{transform:scale(.97)}
+.lbl{font-family:var(--f-mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-soft)}
+.qrs:not([hidden]){display:grid;gap:16px;margin-top:22px;padding-top:18px;border-top:1px dashed var(--rule)}
+.qrbox{display:flex;gap:16px;align-items:center}
+.qrbox .q{flex:none;width:150px;height:150px;background:#fff;border-radius:12px;padding:8px;display:grid;place-items:center}
+.qrbox .q img{width:100%;height:100%;object-fit:contain;image-rendering:pixelated}
+.qrbox .q img.photo{image-rendering:auto}
+.qrbox p{margin:4px 0 0;color:var(--ink-soft);font-size:13.5px}
+@media (max-width:380px){.qrbox{flex-direction:column;align-items:flex-start}}
+.copy{border:1px solid var(--rule);background:none;border-radius:8px;padding:4px 10px;font-size:12.5px;cursor:pointer;color:var(--ink);margin-left:6px}
+.field{display:grid;gap:6px;margin-top:14px}
+.field span{font-size:13.5px;color:var(--ink-soft)}
+.field input,.field select{width:100%;border:1.5px solid var(--rule);background:#fbf9f5;border-radius:10px;padding:12px;color:var(--ink);font-size:16px}
+.field input:focus,.field select:focus{border-color:var(--ink);outline:none}
+.err{color:#b4441c;font-size:13px;margin:6px 0 0}
+/* ---------- receipt ---------- */
+.addutr{margin-top:4px;border:1.5px dashed var(--line);border-radius:12px;padding:12px 14px;color:var(--text)}
+.addutr summary{cursor:pointer;font-size:14px;color:var(--muted)}
+.addrow{display:flex;gap:8px;margin-top:10px}
+.addrow input{flex:1;min-width:0;border:1.5px solid var(--line);background:var(--desk);color:var(--text);border-radius:10px;padding:11px 12px;font-size:16px}
+.addrow .btn{width:auto;padding:11px 18px;font-size:15px;background:var(--text);color:var(--desk)}
+.addutr .tiny{font-size:12.5px;color:var(--muted);margin:8px 0 0}
+/* receipt: pending state + buttons on the dark page */
+.rc-status.wait{background:#2a2418;color:#f6e3bd}
+.rc-status.wait .pip{background:#f0b44c;animation:pulse 1.6s ease-in-out infinite}
+@keyframes pulse{50%{opacity:.35}}
+.rc-stamp.pending .ring{border-color:#d9a54a;color:#c58f2c;box-shadow:inset 0 0 0 4px var(--paper),inset 0 0 0 5.5px #d9a54a}
+.btn.light-line{background:none;border:1.5px solid var(--line);color:var(--text)}
+.btn.light-line:hover{border-color:var(--muted)}
+.btn.back{background:none;color:var(--muted);font-weight:500;font-size:15px}
+.btn.back:hover{color:var(--text)}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.next{margin-top:18px;display:grid;gap:12px;padding:16px 18px;border:1px solid var(--line);border-radius:14px}
+.next-step{display:flex;gap:12px;align-items:flex-start}
+.next-step .n{flex:none;width:24px;height:24px;border-radius:7px;background:var(--text);color:var(--desk);display:grid;place-items:center;font-family:var(--f-mono);font-size:12px;margin-top:1px}
+.next-step b{display:block;font-family:var(--f-display);font-weight:600;font-size:16px;color:var(--text)}
+.next-step span{color:var(--muted);font-size:14px}
+@media (prefers-reduced-motion:reduce){.rc-status.wait .pip{animation:none}}
+.rc{background:var(--paper);color:var(--ink);border-radius:18px;padding:26px 22px 20px;animation:up .4s cubic-bezier(.2,.8,.2,1) both;overflow:hidden}
+@media (min-width:480px){.rc{padding:34px 36px 24px}}
+.rc-export{border-radius:0;animation:none;width:460px;padding:34px 34px 24px}
+.rc-head{display:flex;justify-content:space-between;align-items:baseline;gap:12px;padding-bottom:12px;border-bottom:1px dashed var(--rule)}
+.rc-meta{display:flex;justify-content:space-between;flex-wrap:wrap;gap:4px 12px;font-family:var(--f-mono);font-size:11.5px;color:var(--ink-soft);margin-top:10px;letter-spacing:.02em}
+.rc-hero{text-align:center;padding:26px 0 22px;border-bottom:1px dashed var(--rule)}
+.rc-amt{font-family:var(--f-display);font-weight:600;font-size:clamp(40px,12vw,54px);line-height:1;letter-spacing:-.025em;margin:8px 0 8px;font-variant-numeric:tabular-nums}
+.rc-words{font-size:13px;color:var(--ink-soft);font-style:italic;max-width:30ch;margin:0 auto}
+.rc-status{display:inline-flex;align-items:center;gap:8px;margin-top:14px;padding:6px 12px;border-radius:999px;background:var(--ink);color:var(--paper);font-size:13px;font-weight:500}
+.rc-status .pip{width:8px;height:8px;border-radius:50%;background:#7bd88f}
+.rc-dl{margin:0;padding:6px 0}
+.rc-dl>div{display:grid;grid-template-columns:minmax(96px,38%) minmax(0,1fr);gap:12px;padding:11px 0;border-bottom:1px dashed var(--rule);align-items:baseline}
+.rc-dl dt{color:var(--ink-soft);font-size:13.5px}
+.rc-dl dd{margin:0;text-align:right;font-weight:500;font-size:14.5px;min-width:0;overflow-wrap:anywhere}
+.rc-dl dd small{display:block;font-weight:400;color:var(--ink-soft);font-size:12.5px;margin-top:2px}
+.rc-dl dd.mono{font-family:var(--f-mono);font-size:13.5px}
+.rc-bal{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));margin:18px 0 6px;border-radius:12px;overflow:hidden;background:var(--ink);color:var(--paper)}
+.rc-bal>div{padding:12px 10px;display:grid;gap:4px;text-align:center}
+.rc-bal>div+div{border-left:1px solid rgba(241,237,229,.15)}
+.rc-bal span{font-family:var(--f-mono);font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:#b9b4aa}
+.rc-bal b{font-family:var(--f-display);font-weight:600;font-size:15px;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
+.rc-bal .hl{background:rgba(255,255,255,.06)}
+.rc-tick{border-bottom:1px dashed var(--rule)}
+.rc-tick b{font-size:17px}
+.rc-sign{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:end;gap:10px;padding-top:18px}
+.rc-sig img{width:min(170px,100%);height:auto;display:block;margin-bottom:-4px}
+.rc-sig .sline{width:100%;max-width:220px;margin-top:0}
+.rc-stamp{width:clamp(88px,26vw,108px);aspect-ratio:1;display:grid;place-items:center;margin:0 4px 2px 0}
+.rc-stamp .ring{width:100%;height:100%;border-radius:50%;border:2.5px solid var(--stamp);box-shadow:inset 0 0 0 4px var(--paper),inset 0 0 0 5.5px var(--stamp);transform:rotate(-12deg);display:grid;place-content:center;text-align:center;color:var(--stamp);font-family:var(--f-mono);line-height:1.15}
+.rc-stamp .s1{font-size:clamp(17px,5vw,21px);font-weight:500;letter-spacing:.14em}
+.rc-stamp .s2{font-size:9.5px;letter-spacing:.06em;margin:3px 0}
+.rc-stamp .s3{font-size:9.5px;letter-spacing:.14em}
+.rc-foot{display:flex;justify-content:space-between;flex-wrap:wrap;gap:4px 12px;margin-top:16px;padding-top:12px;border-top:1px dashed var(--rule);font-family:var(--f-mono);font-size:11px;color:var(--ink-soft)}
+.tick{display:flex;gap:16px;align-items:flex-start;padding:16px 0;border-bottom:1px dashed var(--rule)}
+.box{flex:none;width:26px;height:26px;border-radius:7px;background:var(--ink);display:grid;place-items:center;margin-top:2px}
+.box svg{width:15px;height:15px}
+.tick b{font-family:var(--f-display);font-weight:600;font-size:20px;line-height:1.25;display:block;letter-spacing:-.01em}
+.tick span{color:var(--ink-soft);font-size:14.5px}
+.sign{display:flex;justify-content:space-between;align-items:flex-end;gap:12px;padding-top:22px;position:relative}
+.sign img{height:72px;width:auto;display:block}
+.sline{border-top:1px solid var(--ink-soft);padding-top:6px;font-family:var(--f-mono);font-size:12px;color:var(--ink-soft);margin-top:-4px;width:min(240px,62%)}
+.stamp{width:112px;height:112px;border:2.5px solid var(--stamp);border-radius:50%;display:grid;place-items:center;transform:rotate(-12deg);color:var(--stamp);font-family:var(--f-mono);font-weight:500;font-size:13px;letter-spacing:.12em;text-align:center;line-height:1.25;flex:none}
+.foot{font-family:var(--f-mono);font-size:11px;color:var(--ink-soft);margin-top:18px;padding-top:12px;border-top:1px dashed var(--rule)}
+.note{color:var(--muted);font-size:13px;text-align:center;margin:16px 0 0}
+.toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--text);color:var(--desk);padding:10px 16px;border-radius:999px;font-size:14px;z-index:9;animation:up .25s ease both;max-width:calc(100% - 32px)}
+.choose{margin-top:10px}
+.tiny2{font-size:12.5px!important;margin-top:10px!important}
+.applist{display:grid;gap:8px;margin-top:10px}
+.appbtn{display:grid;grid-template-columns:auto 1fr;grid-template-rows:auto auto;column-gap:12px;align-items:center;padding:12px 14px;border:1.5px solid var(--rule);border-radius:12px;text-decoration:none;color:var(--ink);background:#fbf9f5;transition:border-color .2s ease,transform .12s ease}
+.appbtn:hover{border-color:var(--c)} .appbtn:active{transform:scale(.98)}
+.appbtn .dot{grid-row:1/3;width:14px;height:14px;border-radius:50%;background:var(--c)}
+.appbtn .an{font-weight:600;font-size:16px}
+.appbtn .at{font-size:13px;color:var(--ink-soft)}
+.appbtn .at b{color:var(--ink);font-weight:600}
+.paysteps{display:grid;gap:0;margin-top:6px}
+.ps{display:flex;gap:14px;padding:14px 0;border-bottom:1px dashed var(--rule)}
+.ps .n{flex:none;width:26px;height:26px;border-radius:7px;background:var(--ink);color:var(--paper);display:grid;place-items:center;font-family:var(--f-mono);font-size:13px;margin-top:1px}
+.ps b{font-family:var(--f-display);font-weight:600;font-size:17px}
+.ps p{margin:4px 0 0;color:var(--ink-soft);font-size:14px}
+.ps>div{min-width:0;flex:1}
+.upirow{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:8px;padding:10px 12px;border:1.5px solid var(--rule);border-radius:10px;background:#fbf9f5}
+.upirow .mono{overflow-wrap:anywhere;font-size:15px}
+.manual{margin-top:22px;padding:16px;border:1.5px dashed var(--rule);border-radius:12px;background:#fbf9f5}
+.manual p{margin:4px 0 8px;color:var(--ink-soft);font-size:14px}
+.manual ol{margin:0;padding-left:20px;display:grid;gap:8px;font-size:14.5px}
+.manual .tiny{font-size:12.5px;margin:10px 0 0}
+.steps{display:flex;gap:6px;margin:0 0 12px}
+.steps i{height:3px;flex:1;border-radius:3px;background:var(--line)}
+.steps i.on{background:var(--text)}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}html{scroll-behavior:auto}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="nav"><img class="logo logo-img" src="/veltix-main-logo3.png" alt="Veltix"><div class="chip" id="chip">Payment</div></div>
+  <div class="steps" aria-hidden="true"><i id="s1" class="on"></i><i id="s2"></i><i id="s3"></i></div>
+  <main id="app"></main>
+  <p class="note">Payments go straight to Veltix through UPI. No card details, no gateway.</p>
+</div>
+
+<script src="/desk/config.js"></script>
+<script src="/desk/assets/qrcode.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script>
+/* ---------- logo (set in config.js → logo) ---------- */
+(function(){
+  const src=(window.VELTIX_CONFIG&&window.VELTIX_CONFIG.logo)||"/veltix-main-logo3.png";
+  document.querySelectorAll("img.logo-img").forEach(img=>{
+    img.onerror=()=>{const d=document.createElement("div");d.className="logo";d.innerHTML="V<i></i>";img.replaceWith(d)};
+    if(img.getAttribute("src")!==src)img.src=src;
+  });
+})();
+
+(function(){
+const $=s=>document.querySelector(s);
+const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const fmt=n=>"₹"+Math.round(n).toLocaleString("en-IN");
+const nice=s=>{if(!s)return "—";const t=new Date(s+"T00:00:00");return isNaN(t)?s:t.toLocaleDateString("en-IN",{day:"numeric",month:"short",year:"numeric"})};
+const TICK='<svg viewBox="0 0 14 14" fill="none"><path d="M2.5 7.4l3 2.9 6-6.3" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+function toast(t){const el=document.createElement("div");el.className="toast";el.textContent=t;document.body.appendChild(el);setTimeout(()=>el.remove(),2600)}
+function store(k,v){try{if(v===undefined){const s=localStorage.getItem(k);return s?JSON.parse(s):null}localStorage.setItem(k,JSON.stringify(v))}catch(e){return null}}
+function copyNow(t){
+  try{const ta=document.createElement("textarea");ta.value=t;ta.setAttribute("readonly","");ta.style.cssText="position:fixed;opacity:0;top:0;left:0";document.body.appendChild(ta);ta.select();ta.setSelectionRange(0,t.length);document.execCommand("copy");ta.remove()}catch(e){}
+  try{navigator.clipboard&&navigator.clipboard.writeText(t).catch(()=>{})}catch(e){}
+}
+async function copy(t){try{await navigator.clipboard.writeText(t);toast("Copied")}catch(e){toast(t)}}
+function steps(n){[1,2,3].forEach(i=>$("#s"+i).classList.toggle("on",i<=n))}
+
+/* ---- read the payment request from the link ---- */
+function decode(s){
+  s=s.replace(/-/g,"+").replace(/_/g,"/");while(s.length%4)s+="=";
+  const t=decodeURIComponent(escape(atob(s)));
+  if(t[0]==="{")return JSON.parse(t);
+  const f=t.split("|");if(f[0]!=="2")return null;
+  const due=f[9]&&f[9].length===8?`${f[9].slice(0,4)}-${f[9].slice(4,6)}-${f[9].slice(6)}`:"";
+  return {c:f[1],b:f[2]||f[1],p:f[3],inv:(f[4]||"").replace(/^~/,"VLX-INV-"),amt:Number(f[5]),lbl:f[6],tot:Number(f[7])||0,paid:Number(f[8])||0,due,upi:f[10],pn:f[11]||"Veltix",wa:f[12],biz:f[13]==="b"};
+}
+let D=null;
+try{const q=new URLSearchParams(location.search).get("d");if(q)D=decode(q)}catch(e){D=null}
+if(!D||!D.upi||!(D.amt>0)){
+  $("#app").innerHTML=`<div class="card"><div class="head"><span class="brand">VELTIX</span><span class="kick">Payment</span></div><p style="margin-top:18px">This payment link is incomplete. Please ask Veltix to send it again.</p></div>`;
+  return;
+}
+const KEY="veltix-paid-"+D.inv+"-"+D.amt;
+const note=(D.inv||"Veltix").slice(0,40);
+const params=`pa=${D.upi.replace(/[^A-Za-z0-9.@_-]/g,"")}&pn=${encodeURIComponent(D.pn||"Veltix")}&am=${Number(D.amt).toFixed(2)}&cu=INR&tn=${encodeURIComponent(note)}`;
+const iOS=/iPad|iPhone|iPod/.test(navigator.userAgent)||(navigator.platform==="MacIntel"&&navigator.maxTouchPoints>1);
+const mobile=/Android|iPhone|iPad|iPod/i.test(navigator.userAgent)||iOS;
+const links={upi:"upi://pay?"+params,phonepe:"phonepe://pay?"+params,gpay:(iOS?"gpay://upi/pay?":"tez://upi/pay?")+params,paytm:"paytmmp://pay?"+params};
+
+/* ---- step 1: pay ---- */
+function renderPay(){
+  steps(1);$("#chip").textContent="Payment request";
+  const head=`<div class="head"><span class="brand">VELTIX</span><span class="kick">For ${esc(D.b||D.c||"you")}</span></div>
+    <div class="amount">${fmt(D.amt)}</div>
+    <p class="for">${esc(D.lbl||"Payment")} · ${esc(D.p||"Website project")}</p>
+    <dl class="kv">
+      <dt>Invoice</dt><dd class="mono">${esc(D.inv||"—")}</dd>
+      ${D.due?`<dt>Due by</dt><dd>${nice(D.due)}</dd>`:""}
+      <dt>Paying to</dt><dd>${esc(D.pn||"Veltix")}</dd>
+    </dl>`;
+  const chooser=`upi://pay?pa=${D.upi.replace(/[^A-Za-z0-9.@_-]/g,"")}&pn=${encodeURIComponent(D.pn||"Veltix")}&cu=INR&tn=${encodeURIComponent(note)}`;
+  let body;
+  if(D.biz){
+    // business UPI: one-tap links with the amount filled in
+    const qr=qrcode(0,"M");qr.addData(links.upi);qr.make();
+    body=`<div class="stack">
+      ${mobile?`<a class="btn dark" href="${links.upi}">Pay ${fmt(D.amt)} with any UPI app</a>
+      <div class="apps"><a class="app" href="${links.phonepe}">PhonePe</a><a class="app" href="${links.gpay}">Google Pay</a><a class="app" href="${links.paytm}">Paytm</a></div>`:""}
+    </div>
+    <div class="qrs"><div class="qrbox"><div class="q"><img alt="UPI QR code for ${fmt(D.amt)}" src="${qr.createDataURL(6,2)}"></div>
+      <div><div class="lbl">${mobile?"On another phone?":"Scan to pay"}</div><b style="font-family:var(--f-display);font-size:18px">Amount already filled in</b><p>Open any UPI app and scan.</p></div></div></div>`;
+  }else{
+    // personal UPI: client enters the amount themselves (never blocked)
+    body=`<div class="paysteps">
+      <div class="ps"><span class="n">1</span><div><b>Copy our UPI ID</b>
+        <div class="upirow"><span class="mono">${esc(D.upi)}</span><button class="copy" id="cpUpi" type="button">Copy</button></div></div></div>
+      <div class="ps"><span class="n">2</span><div><b>Choose your UPI app</b>
+        ${mobile?`<p>Your phone shows the UPI apps you have. Pick one, our UPI ID is already filled in.</p>
+        <a class="btn dark choose" id="chooseApp" href="${chooser}">Choose your app to pay</a>
+        <p class="tiny2">Nothing opened? Open any UPI app yourself, tap <b>Pay to UPI ID</b> and paste the ID from step 1.</p>`
+        :`<p>Open this link on your phone to pick your UPI app, or scan the QR code below.</p>`}</div></div>
+      <div class="ps"><span class="n">3</span><div><b>Enter ${fmt(D.amt)}</b> <button class="copy" id="cpAmt" type="button">Copy amount</button>
+        <p>Add the note <b class="mono">${esc(note)}</b> so we can match your payment.</p></div></div>
+    </div>
+    <div class="qrs" id="staticQr"><div class="qrbox"><div class="q"><img class="photo" alt="Veltix UPI QR code" src="/desk/assets/upi-qr.png" id="staticImg"></div>
+      <div><div class="lbl">Or scan</div><b style="font-family:var(--f-display);font-size:18px">Scan, then enter ${fmt(D.amt)}</b><p>Works with any UPI app. Use another phone to scan, or save this image and pick it from your gallery in the app's scanner.</p></div></div></div>`;
+  }
+  $("#app").innerHTML=`<div class="card">${head}${body}
+    <div class="stack"><button class="btn dark" id="paidBtn" type="button">I've paid</button></div></div>`;
+  const si=$("#staticImg");if(si)si.onerror=()=>$("#staticQr").hidden=true;
+  const c1=$("#cpUpi");if(c1)c1.onclick=()=>copy(D.upi);
+  const c2=$("#cpAmt");if(c2)c2.onclick=()=>copy(String(Math.round(D.amt)));
+  const ch=$("#chooseApp");
+  if(ch)ch.addEventListener("click",()=>{copyNow(D.upi);toast("UPI ID copied too. Enter "+fmt(D.amt)+" in your app")});
+  $("#paidBtn").onclick=()=>{const r={utr:"",via:"UPI",name:D.c||"",at:new Date().toISOString()};store(KEY,r);renderReceipt(r)};
+}
+
+/* ---- step 2: transaction ID ---- */
+function renderConfirm(){
+  steps(2);$("#chip").textContent="Confirm payment";
+  $("#app").innerHTML=`<div class="card">
+    <div class="head"><span class="brand">VELTIX</span><span class="kick">Confirm payment</span></div>
+    <div class="amount" style="font-size:34px">${fmt(D.amt)}</div>
+    <p class="for">Find the transaction ID in your UPI app's payment history. It's usually 12 digits, called UTR or UPI Ref No.</p>
+    <form id="cf" novalidate>
+      <label class="field"><span>Transaction ID (UTR)</span><input id="utr" inputmode="numeric" autocomplete="off" placeholder="e.g. 427812345678" required></label>
+      <label class="field"><span>Paid with</span><select id="via"><option>PhonePe</option><option>Google Pay</option><option>Paytm</option><option>BHIM</option><option>Bank app</option><option>Other UPI app</option></select></label>
+      <label class="field"><span>Your name</span><input id="nm" autocomplete="name" value="${esc(D.c||"")}"></label>
+      <p class="err" id="er" hidden></p>
+      <div class="stack"><button class="btn dark" type="submit">Get my receipt</button><button class="btn ghost" type="button" id="back">Back to payment</button></div>
+    </form></div>`;
+  $("#back").onclick=renderPay;
+  $("#cf").onsubmit=e=>{
+    e.preventDefault();const utr=$("#utr").value.replace(/\s/g,"");
+    if(!/^[A-Za-z0-9]{8,30}$/.test(utr)){const er=$("#er");er.hidden=false;er.textContent="Enter the transaction ID from your UPI app. It's usually 12 digits.";$("#utr").focus();return}
+    const r={utr,via:$("#via").value,name:$("#nm").value.trim()||D.c||"",at:new Date().toISOString()};
+    store(KEY,r);renderReceipt(r);
+  };
+  $("#utr").focus();
+}
+
+/* ---- step 3: receipt (promise-card format) ---- */
+function words(n){
+  n=Math.round(n);if(!n)return "Zero";
+  const a=["","One","Two","Three","Four","Five","Six","Seven","Eight","Nine","Ten","Eleven","Twelve","Thirteen","Fourteen","Fifteen","Sixteen","Seventeen","Eighteen","Nineteen"],t=["","","Twenty","Thirty","Forty","Fifty","Sixty","Seventy","Eighty","Ninety"];
+  const two=x=>x<20?a[x]:t[Math.floor(x/10)]+(x%10?"-"+a[x%10]:"");
+  const three=x=>(x>=100?a[Math.floor(x/100)]+" Hundred"+(x%100?" ":""):"")+(x%100?two(x%100):"");
+  const o=[],cr=Math.floor(n/1e7);n%=1e7;const lk=Math.floor(n/1e5);n%=1e5;const th=Math.floor(n/1e3);n%=1e3;
+  if(cr)o.push(three(cr)+" Crore");if(lk)o.push(two(lk)+" Lakh");if(th)o.push(two(th)+" Thousand");if(n)o.push(three(n));return o.join(" ");
+}
+function renderReceipt(r){
+  steps(3);$("#chip").textContent="Payment submitted";window.scrollTo({top:0,behavior:"smooth"});
+  const already=Number(D.paid)||0,tot=Number(D.tot)||0,after=Math.max(tot-already-Number(D.amt),0);
+  const when=new Date(r.at);
+  const dt=when.toLocaleString("en-IN",{day:"numeric",month:"short",year:"numeric",hour:"numeric",minute:"2-digit"});
+  const stampDate=when.toLocaleDateString("en-IN",{day:"2-digit",month:"short",year:"2-digit"}).toUpperCase();
+  const rno=`P-${(D.inv||"VLX").replace(/^VLX-INV-/,"")}-${String(when.getHours()).padStart(2,"0")}${String(when.getMinutes()).padStart(2,"0")}`;
+  const from=r.name||D.c||"Client";
+  const CLOCK='<svg viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="5.2" stroke="#fff" stroke-width="1.7"/><path d="M7 4.3V7l1.8 1.3" stroke="#fff" stroke-width="1.7" stroke-linecap="round"/></svg>';
+  $("#app").innerHTML=`<article class="rc" id="receipt">
+    <header class="rc-head"><span class="brand">VELTIX</span><span class="kick">Payment submitted</span></header>
+    <div class="rc-meta"><span>Ref ${esc(rno)}</span><span>${esc(dt)}</span></div>
+
+    <section class="rc-hero">
+      <div class="lbl">Amount sent</div>
+      <div class="rc-amt">${fmt(D.amt)}</div>
+      <div class="rc-words">Rupees ${words(D.amt)} only</div>
+      <div class="rc-status wait"><span class="pip"></span>Awaiting confirmation from Veltix</div>
+    </section>
+
+    <dl class="rc-dl">
+      <div><dt>From</dt><dd>${esc(from)}${D.b&&D.b!==from?`<small>${esc(D.b)}</small>`:""}</dd></div>
+      <div><dt>For</dt><dd>${esc(D.lbl||"Payment")}<small>${esc(D.p||"Website project")}</small></dd></div>
+      <div><dt>Invoice</dt><dd class="mono">${esc(D.inv||"—")}</dd></div>
+      <div><dt>Sent to</dt><dd>${esc(D.pn||"Veltix")}<small class="mono">${esc(D.upi)}</small></dd></div>
+    </dl>
+
+    ${tot?`<section class="rc-bal">
+      <div><span>Project total</span><b>${fmt(tot)}</b></div>
+      <div><span>Confirmed so far</span><b>${fmt(already)}</b></div>
+      <div class="hl"><span>Balance after this</span><b>${after>0?fmt(after):"Nil"}</b></div>
+    </section>`:""}
+
+    <div class="tick rc-tick"><div class="box">${CLOCK}</div><div><b>We confirm it within 24 hours</b><span>Once we see ${fmt(D.amt)} in our bank account, you get your official PAID invoice on WhatsApp. That invoice is your receipt.</span></div></div>
+
+    <section class="rc-sign">
+      <div class="rc-sig"><img src="/desk/assets/veltix-signature.png" alt="Veltix signature"><div class="sline">The Veltix team</div></div>
+      <div class="rc-stamp pending" aria-label="Sent, awaiting check"><div class="ring"><span class="s1">SENT</span><span class="s2">${esc(stampDate)}</span><span class="s3">TO CHECK</span></div></div>
+    </section>
+
+    <footer class="rc-foot"><span>veltix.in</span><span>Payment confirmation request, not a receipt</span></footer>
+  </article>
+
+  <section class="next">
+    <div class="next-step"><span class="n">1</span><div><b>Take a screenshot of the payment</b><span>In PhonePe, Google Pay or your bank app, open the payment you just made and screenshot it.</span></div></div>
+    <div class="next-step"><span class="n">2</span><div><b>${D.wa?"Send it to us on WhatsApp":"Send it to Veltix on WhatsApp"}</b><span>${D.wa?"Tap the button below and attach the screenshot. No need to type anything.":"Attach the screenshot in your chat with Veltix."}</span></div></div>
+  </section>
+  <div class="stack">
+    ${D.wa?`<a class="btn wa" id="waBtn" target="_blank" rel="noopener">Send payment screenshot on WhatsApp</a>`:""}
+    <div class="row2">
+      <button class="btn light-line" id="imgBtn" type="button">Save as image</button>
+      <button class="btn light-line" id="pdfBtn" type="button">Download PDF</button>
+    </div>
+    <button class="btn back" id="backPay" type="button">← Back to payment</button>
+  </div>`;
+  if(D.wa){
+    const t=`Hi Veltix, I've paid ${fmt(D.amt)} for ${D.inv} (${D.lbl||"payment"}).\nName: ${from}\nRef: ${rno}\n\nAttaching the payment screenshot from my UPI app.`;
+    $("#waBtn").href=`https://wa.me/${D.wa}?text=${encodeURIComponent(t)}`;
+  }
+  $("#backPay").onclick=()=>{try{localStorage.removeItem(KEY)}catch(e){}renderPay();window.scrollTo({top:0,behavior:"smooth"})};
+  $("#imgBtn").onclick=()=>shot("png");
+  $("#pdfBtn").onclick=()=>shot("pdf");
+}
+async function shot(kind){
+  if(!window.html2canvas){toast("Check your internet and try again");return}
+  const btn=$(kind==="pdf"?"#pdfBtn":"#imgBtn");const label=btn.textContent;btn.disabled=true;btn.textContent="Preparing…";
+  // render a fixed-width copy so the file looks the same on every phone, sharp at 3x
+  const host=document.createElement("div");host.style.cssText="position:fixed;left:-10000px;top:0;width:460px";
+  const clone=$("#receipt").cloneNode(true);clone.removeAttribute("id");clone.classList.add("rc-export");host.appendChild(clone);document.body.appendChild(host);
+  try{
+    if(document.fonts&&document.fonts.ready)await document.fonts.ready;
+    await Promise.all([...clone.querySelectorAll("img")].map(i=>i.complete?0:new Promise(res=>{i.onload=i.onerror=res})));
+    const cv=await html2canvas(clone,{scale:3,backgroundColor:null,logging:false});
+    const name=`Veltix-receipt-${D.inv||"payment"}`;
+    if(kind==="pdf"){
+      const {jsPDF}=window.jspdf;const w=clone.offsetWidth,h=clone.offsetHeight;
+      const pdf=new jsPDF({unit:"px",format:[w,h],hotfixes:["px_scaling"],orientation:w>h?"landscape":"portrait"});
+      pdf.setFillColor(241,237,229);pdf.rect(0,0,w,h,"F");
+      pdf.addImage(cv.toDataURL("image/png"),"PNG",0,0,w,h);pdf.save(name+".pdf");return;
+    }
+    await new Promise(res=>cv.toBlob(async b=>{
+      const f=new File([b],name+".png",{type:"image/png"});
+      try{if(navigator.canShare&&navigator.canShare({files:[f]})){await navigator.share({files:[f]});return res()}}catch(e){if(e.name==="AbortError")return res()}
+      const a=document.createElement("a");a.href=URL.createObjectURL(b);a.download=f.name;document.body.appendChild(a);a.click();a.remove();res();
+    },"image/png"));
+  }catch(e){toast("Couldn't save the receipt. Try again.")}
+  finally{host.remove();btn.disabled=false;btn.textContent=label}
+}
+
+const saved=store(KEY);
+saved?renderReceipt(saved):renderPay();
+})();
+</script>
+</body>
+</html>
