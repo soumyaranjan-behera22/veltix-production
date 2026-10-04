@@ -243,6 +243,11 @@ body[data-view="deals"] .layout,body[data-view="settings"] .layout{display:none!
 .card-s{background:var(--rail);border:1px solid var(--line);border-radius:16px;padding:20px}
 .card-s h3{margin:0 0 4px;font-family:var(--f-display);font-weight:600;font-size:18px}
 .card-s>p{margin:0 0 14px;color:var(--muted);font-size:13.5px}
+.upi-list{display:flex;flex-direction:column;gap:8px}
+.upi-row{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 12px;border:1px solid var(--line);border-radius:12px;font-family:var(--f-mono);font-size:13.5px}
+.upi-row button{background:none;border:0;color:var(--muted);cursor:pointer;font:inherit;font-size:12px}
+.upi-row button:hover{color:#f07a6a}
+#upiNew{background:transparent;border:1px solid var(--line);border-radius:10px;padding:10px 12px;color:inherit;font:inherit}
 .rowx{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
 /* bottom nav (phones) */
 .bottomnav{display:none}
@@ -349,6 +354,10 @@ html{scroll-behavior:smooth}
         <label class="f"><span>Account no.</span><input type="text" id="a-acc" data-k="agency.accNo"></label>
         <label class="f"><span>IFSC</span><input type="text" id="a-ifsc" data-k="agency.ifsc"></label>
       </div></div>
+  <div class="card-s" id="upiCard" hidden><h3>Approved UPI IDs</h3><p id="upiCardSub">Payment links work only for these UPI IDs.</p>
+    <div id="upiApproved" class="upi-list"></div>
+    <div class="rowx" id="upiAddRow" hidden style="margin-top:12px;gap:8px;flex-wrap:wrap"><input type="text" id="upiNew" placeholder="name@okaxis" autocomplete="off" spellcheck="false" style="flex:1;min-width:180px" aria-label="New UPI ID"><button class="btn primary" id="upiAddBtn" type="button">Approve</button></div>
+  </div>
   <div class="card-s"><h3>Documents</h3><p>A blank agreement to print or send as it is.</p><div class="rowx"><a class="btn" href="/desk/Veltix-Default-Agreement.pdf" target="_blank" rel="noopener" style="text-decoration:none">Open blank agreement</a></div></div>
 </div></section>
 
@@ -961,7 +970,7 @@ async function boot(user){
   USER=user;showApp();
   $id("who").textContent=user.email;$id("whoFull").textContent="Signed in as "+user.email;
   $id("acctBtn").textContent=(user.email||"V")[0].toUpperCase();
-  if(!booted){booted=true;await loadAll()}
+  if(!booted){booted=true;await loadAll();await loadApproved()}
   S=sampleDeal();S.agency=AGENCY;loadUI();updateDealState();
   setView("deals");
 }
@@ -1096,20 +1105,55 @@ document.getElementById("reqBtn").onclick=()=>{
   reqPanel.scrollIntoView({behavior:"smooth",block:"nearest"});
   if(!upiOk()){toast("Add your UPI ID first. It's on your QR or in your UPI app.");const f=document.getElementById("req-upi"),L=f.closest("label");f.focus();L.classList.add("flash");setTimeout(()=>L.classList.remove("flash"),1600)}
 };
+/* Approved UPI IDs: only the owner can add or remove (enforced by Supabase, see desk-setup/upi-owner-lock.sql) */
+let APPROVED=null,IS_OWNER=false; // APPROVED null = lock not set up yet, any valid UPI allowed
+function isApproved(v){return !APPROVED||APPROVED.includes(String(v||"").trim().toLowerCase())}
+async function loadApproved(){
+  try{
+    const [list,own]=await Promise.all([sb.from("approved_upi").select("upi").order("added_at"),sb.rpc("desk_is_owner")]);
+    if(list.error){APPROVED=null;IS_OWNER=false;renderApproved();return}
+    APPROVED=(list.data||[]).map(r=>r.upi);IS_OWNER=!own.error&&own.data===true;
+  }catch(e){APPROVED=null}
+  renderApproved();
+}
+function renderApproved(){
+  const card=document.getElementById("upiCard");if(!card)return;
+  card.hidden=!APPROVED;if(!APPROVED)return;
+  document.getElementById("upiCardSub").textContent=IS_OWNER?"Payment links work only for these UPI IDs. Only you (the owner) can add or remove them.":"Payment links work only for these UPI IDs. Only the owner can add or remove them.";
+  document.getElementById("upiAddRow").hidden=!IS_OWNER;
+  document.getElementById("upiApproved").innerHTML=APPROVED.length?APPROVED.map(u=>`<div class="upi-row"><span>${esc(u)}</span>${IS_OWNER?`<button type="button" data-unapprove="${esc(u)}">Remove</button>`:""}</div>`).join(""):`<p class="hint">No UPI IDs approved yet.</p>`;
+  if(!reqPanel.hidden)fillUpiField();
+}
+async function approveUpi(v){
+  v=String(v||"").trim().toLowerCase();
+  if(!UPI_RE.test(v)){toast("That doesn't look like a UPI ID. It should look like name@okaxis.");return false}
+  const {error}=await sb.from("approved_upi").insert({upi:v});
+  if(error&&!/duplicate/i.test(error.message||"")){toast("Couldn't approve it. Only the owner can add UPI IDs.");console.warn(error);return false}
+  if(!APPROVED.includes(v))APPROVED.push(v);renderApproved();toast(v+" approved");return true;
+}
+document.getElementById("upiAddBtn").onclick=async()=>{const i=document.getElementById("upiNew");if(await approveUpi(i.value))i.value=""};
+document.getElementById("upiNew").addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();document.getElementById("upiAddBtn").click()}});
+document.getElementById("upiApproved").addEventListener("click",async e=>{
+  const b=e.target.closest("[data-unapprove]");if(!b)return;const v=b.dataset.unapprove;
+  if(b.dataset.sure!=="1"){b.dataset.sure="1";b.textContent="Remove? Links to it stop working";return}
+  const {error}=await sb.from("approved_upi").delete().eq("upi",v);
+  if(error){toast("Couldn't remove it");console.warn(error);return}
+  APPROVED=APPROVED.filter(x=>x!==v);renderApproved();toast(v+" removed");
+});
 /* UPI ID right inside the payment panel: always visible, editable, remembered */
 const UPI_RE=/^[a-z0-9._-]{2,}@[a-z0-9.-]{2,}$/i;
-function upiOk(){return UPI_RE.test(String(S.agency.upi||"").trim())}
+function upiOk(){const v=String(S.agency.upi||"").trim().toLowerCase();return UPI_RE.test(v)&&isApproved(v)}
 function fillUpiField(){
   const f=document.getElementById("req-upi");f.value=S.agency.upi||"";
-  const hist=(Array.isArray(AGENCY.upiHistory)?AGENCY.upiHistory:[]).slice().reverse();
+  const hist=APPROVED?APPROVED.slice():(Array.isArray(AGENCY.upiHistory)?AGENCY.upiHistory:[]).slice().reverse();
   document.getElementById("upiList").innerHTML=hist.map(u=>`<option value="${esc(u)}"></option>`).join("");
   showUpiState();
 }
 function showUpiState(){
   const v=document.getElementById("req-upi").value.trim(),h=document.getElementById("upiHint");
-  const bad=v&&!UPI_RE.test(v);
-  h.textContent=!v?"Type the UPI ID you want this payment to go to.":bad?"That doesn't look like a UPI ID. It should look like name@okaxis.":"The client pays this UPI ID. Change it any time; links you already sent keep working.";
-  h.style.color=(!v||bad)?"var(--amber,#e0a84a)":"";
+  const bad=v&&!UPI_RE.test(v),unapproved=v&&!bad&&!isApproved(v.toLowerCase());
+  h.textContent=!v?(APPROVED&&!IS_OWNER?"Pick an approved UPI ID from the list.":"Type the UPI ID you want this payment to go to."):bad?"That doesn't look like a UPI ID. It should look like name@okaxis.":unapproved?(IS_OWNER?"New UPI ID. It will be approved when you click outside this box.":"This UPI ID isn't approved by the owner. Links to it are blocked. Pick one from the list."):"The client pays this UPI ID. Change it any time; links you already sent keep working.";
+  h.style.color=(!v||bad||unapproved)?"var(--amber,#e0a84a)":"";
 }
 document.getElementById("req-upi").addEventListener("input",e=>{
   AGENCY.upi=e.target.value.trim();S.agency=AGENCY;
@@ -1117,11 +1161,20 @@ document.getElementById("req-upi").addEventListener("input",e=>{
   store("veltix-agency",AGENCY);showUpiState();updateLink();
 });
 // save to your account once you finish typing (so half-typed IDs aren't remembered)
-document.getElementById("req-upi").addEventListener("change",()=>{if(upiOk()){clearTimeout(setTimer);saveSettingsNow();fillUpiField();refresh()}});
+document.getElementById("req-upi").addEventListener("change",async()=>{
+  const v=String(AGENCY.upi||"").trim().toLowerCase();
+  if(IS_OWNER&&UPI_RE.test(v)&&!isApproved(v))await approveUpi(v);
+  if(upiOk()){clearTimeout(setTimer);saveSettingsNow();fillUpiField();refresh()}
+});
 // Settings → UPI ID: save the moment you finish typing, so new links are accepted right away
-document.getElementById("a-upi").addEventListener("change",()=>{if(upiOk()){clearTimeout(setTimer);saveSettingsNow()}});
+document.getElementById("a-upi").addEventListener("change",async()=>{
+  const v=String(AGENCY.upi||"").trim().toLowerCase();
+  if(IS_OWNER&&UPI_RE.test(v)&&!isApproved(v))await approveUpi(v);
+  if(upiOk()){clearTimeout(setTimer);saveSettingsNow()}
+  else if(UPI_RE.test(v)&&!isApproved(v))toast("This UPI ID isn't approved by the owner, so payment links to it will be blocked.");
+});
 document.getElementById("reqOpen").addEventListener("click",e=>{if(needUpi())e.preventDefault()});
-function needUpi(){if(upiOk())return false;toast("Add a valid UPI ID first");document.getElementById("req-upi").focus();return true}
+function needUpi(){if(upiOk())return false;toast(UPI_RE.test(String(S.agency.upi||"").trim())?"This UPI ID isn't approved by the owner. Pick an approved one.":"Add a valid UPI ID first");document.getElementById("req-upi").focus();return true}
 ["req-amt","req-lbl"].forEach(id=>document.getElementById(id).addEventListener("input",updateLink));
 document.getElementById("reqCopy").onclick=async()=>{if(needUpi())return;const l=payLink();try{await navigator.clipboard.writeText(l);toast("Link copied")}catch(e){const i=document.getElementById("req-link");i.select();toast("Select and copy the link")}};
 document.getElementById("reqWa").onclick=()=>{

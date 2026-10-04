@@ -23,10 +23,10 @@ Deploy the backend first so you have its URL to give to the frontend.
 
 In the Railway service → **Variables**, add:
 
-| Variable | Value |
-|---|---|
-| `RESEND_API_KEY` | Your API key from [resend.com](https://resend.com) |
-| `CORS_ORIGIN` | Your Vercel frontend URL, e.g. `https://veltix.vercel.app` (leave unset if you want to allow all origins) |
+| Variable           | Value                                                                                                      |
+| ------------------ | ---------------------------------------------------------------------------------------------------------- |
+| `RESEND_API_KEY` | Your API key from[resend.com](https://resend.com)                                                           |
+| `CORS_ORIGIN`    | Your Vercel frontend URL, e.g.`https://veltix.vercel.app` (leave unset if you want to allow all origins) |
 
 Railway sets `PORT` automatically — you don't need to add it.
 
@@ -66,9 +66,9 @@ Then connect that repo in both Railway (step 1) and Vercel (step 4).
 
 In the Vercel project → **Settings → Environment Variables**, add:
 
-| Variable | Value |
-|---|---|
-| `VITE_API_URL` | Your Railway backend URL from step 2, e.g. `https://veltix-backend-production.up.railway.app` (no trailing slash) |
+| Variable         | Value                                                                                                              |
+| ---------------- | ------------------------------------------------------------------------------------------------------------------ |
+| `VITE_API_URL` | Your Railway backend URL from step 2, e.g.`https://veltix-backend-production.up.railway.app` (no trailing slash) |
 
 Redeploy after adding the variable (Vercel → Deployments → ⋯ → Redeploy) so the build picks it up — Vite inlines env vars at build time.
 

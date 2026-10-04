@@ -14,5 +14,5 @@ window.VELTIX_CONFIG = {
   supabaseUrl: "https://kqvxespisjtbsqcidjvz.supabase.co",
   supabaseAnonKey: "sb_publishable_SO_6_Xc64DVwtQyUVA2SJg_PHrxxr10",
   logo: "/veltix-admin-logo.png",
-  adminEmails: ["veltixagency@gmail.com", "pinkibehera671@gmail.com", "sipu@os.in"]
+  adminEmails: ["veltixagency@gmail.com", "pinkibehera671@gmail.com", "sipu@os.in","soumya.rbehera007@gmail.com"]
 };
